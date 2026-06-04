@@ -3,56 +3,1232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viajes Pereira - Registro Oficial V5</title>
+    <title>Sistema de Control Diario y Base de Datos - Oficina Prados del Este</title>
     <style>
-        body { background-color: #f4f7f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-        .container { background: #fff; width: 100%; max-width: 480px; padding: 30px 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 8px solid #1a73e8; }
-        h1 { color: #2c3e50; margin: 0; text-align: center; font-size: 28px; }
-        p { color: #666; text-align: center; margin-bottom: 25px; }
-        .section { font-size: 12px; font-weight: bold; color: #1a73e8; margin: 20px 0 10px; border-bottom: 1px solid #eee; text-transform: uppercase; padding-bottom: 5px; }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #444; }
-        input { width: 100%; padding: 11px; border: 2px solid #e1e4e8; border-radius: 10px; font-size: 15px; outline: none; box-sizing: border-box; transition: 0.3s; }
-        input:focus { border-color: #1a73e8; }
-        button { width: 100%; padding: 14px; background-color: #1a73e8; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 15px; }
-        button:disabled { background-color: #bdc3c7; }
-        #status { margin-top: 15px; padding: 10px; border-radius: 10px; text-align: center; display: none; font-weight: 600; font-size: 14px; }
-        .success { background-color: #d4edda; color: #155224; display: block !important; }
+        /* --- ESTILOS GENERALES Y VARIABLES (CSS) --- */
+        :root {
+            --primary-color: #0f172a;
+            --accent-color: #2563eb;
+            --success-color: #16a34a;
+            --warning-color: #ea580c;
+            --info-color: #06b6d4;
+            --danger-color: #ef4444;
+            --notes-color: #8b5cf6; 
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --border-color: #e2e8f0;
+            --vp-blue: #0046ad;
+            --vp-magenta: #e41b7a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            position: relative;
+            background: linear-gradient(135deg, var(--vp-blue) 0%, #1e1b4b 50%, var(--vp-magenta) 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Efecto marca de agua fijo con la mascota en el fondo */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("Copia de IMG_5896 2.JPG");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 45%; 
+            opacity: 0.08; 
+            z-index: 1; 
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* MODIFICACIÓN: Estilos para la Pizarra de Avisos Fijos Importantes */
+        .sticky-announcement-bar {
+            display: none;
+            background: linear-gradient(90deg, #fef08a 0%, #fefbc3 100%);
+            border-left: 6px solid #ca8a04;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            color: #854d0e;
+        }
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .announcement-body {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* --- ENCABEZADO --- */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            background: linear-gradient(90deg, #091222 0%, #111e36 100%);
+            padding: 20px 30px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-info h1 {
+            color: #ffffff;
+            font-size: 26px;
+            margin-bottom: 5px;
+        }
+
+        .header-info p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .main-logo {
+            height: 75px;
+            object-fit: contain;
+            filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, 0.15));
+        }
+
+        /* --- TABS --- */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(5px);
+        }
+
+        .tab-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .tab-btn.active {
+            background-color: #fcd116; 
+            color: #0f172a;
+            border-color: #fcd116;
+            box-shadow: 0 4px 12px rgba(252, 209, 22, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* --- DASHBOARD --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.96);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            border-left: 5px solid var(--accent-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kpi-card.ventas { border-left-color: var(--success-color); }
+        .kpi-card.cotizaciones { border-left-color: var(--warning-color); }
+        .kpi-card.visitas { border-left-color: var(--info-color); }
+        .kpi-card.total-clientes { border-left-color: #8b5cf6; }
+
+        .kpi-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            font-weight: bold;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-top: 5px;
+        }
+
+        /* --- FORMULARIOS --- */
+        .form-section {
+            background: rgba(255, 255, 255, 0.96);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .form-title-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .form-icon-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        .form-section h2 {
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .conditional-group {
+            display: none;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #475569;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            background-color: #f8fafc;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .checkbox-item input {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
+            background-color: #f8fafc;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--accent-color);
+            background-color: #ffffff;
+        }
+
+        .btn-submit {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            grid-column: 1 / -1;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+
+        .btn-submit:hover { background-color: #1d4ed8; }
+        .btn-submit.btn-notes { background-color: var(--notes-color); }
+        .btn-submit.btn-notes:hover { background-color: #7c3aed; }
+
+        /* --- CONTROLES BASE DE DATOS --- */
+        .db-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            gap: 15px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .search-box {
+            flex: 2;
+            min-width: 250px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .filter-select {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #ffffff;
+            color: var(--text-main);
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-export {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-export:hover { background-color: #15803d; }
+
+        /* --- TABLAS --- */
+        .table-section {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--primary-color);
+            padding: 14px 16px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #f8fafc; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge.venta { background-color: #dcfce7; color: #15803d; }
+        .badge.cotizacion { background-color: #ffedd5; color: #c2410c; }
+        .badge.visita { background-color: #ecfeff; color: #0e7490; }
+
+        /* Estilos de Categorías de la Bitácora */
+        .badge.infraestructura { background-color: #fee2e2; color: #991b1b; }
+        .badge.administracion { background-color: #fef9c3; color: #854d0e; }
+        .badge.mensajeria { background-color: #e0f2fe; color: #075985; }
+        .badge.recordatorio { background-color: #f3e8ff; color: #6b21a8; }
+
+        .status-pill {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .status-pill.ok { background-color: #dcfce7; color: #16a34a; }
+        .status-pill.alert { background-color: #fef9c3; color: #ca8a04; animation: pulse 2s infinite; }
+        .status-pill.danger { background-color: #fee2e2; color: #dc2626; animation: pulse 1s infinite; }
+
+        /* MODIFICACIÓN: Botones interactivos para cambiar estatus en bitácora */
+        .btn-status-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 0;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover { background-color: #b91c1c; }
+        .no-data { text-align: center; padding: 40px; color: #94a3b8; font-style: italic; }
+        .client-name { font-weight: 600; color: var(--primary-color); }
+        
+        .client-meta-box {
+            font-size: 11px;
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .client-id-card { background: #eddffc; color: #6d28d9; padding: 1px 5px; border-radius: 4px; font-weight: 700; width: fit-content;}
+        .client-payment-card { background: #dbeafe; color: #1e40af; padding: 1px 5px; border-radius: 4px; font-weight: 700; width: fit-content;}
+        .client-amount-card { background: #e0f2fe; color: #0369a1; padding: 1px 5px; border-radius: 4px; font-weight: 700; width: fit-content;}
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>@viajespereira</h1>
-        <p>Registro Central de Viajeros</p>
-        <form id="f">
-            <div class="section">Datos del Ejecutivo</div>
-            <div class="form-group"><label>Ejecutivo de Venta</label><input type="text" name="ejecutivo" placeholder="Nombre del vendedor" required></div>
-            <div class="section">Datos del Viajero</div>
-            <div class="form-group"><label>Cédula / Pasaporte</label><input type="text" name="cedula" required></div>
-            <div class="form-group"><label>Nombre</label><input type="text" name="nombre" required></div>
-            <div class="form-group"><label>Apellido</label><input type="text" name="apellido" required></div>
-            <div class="form-group"><label>Edad</label><input type="number" name="edad" required min="0"></div>
-            <div class="form-group"><label>Correo Electrónico</label><input type="email" name="email" required></div>
-            <div class="form-group"><label>Celular</label><input type="tel" name="celular" placeholder="+58..." required></div>
-            <button type="submit" id="b">Finalizar Registro</button>
-        </form>
-        <div id="status"></div>
+        
+        <!-- MODIFICACIÓN GERENCIAL: PIZARRA DE AVISOS IMPORTANTES FIJOS (BANNER SUPERIOR) -->
+        <div id="pizarra-avisos" class="sticky-announcement-bar">
+            <div class="announcement-header">
+                <span>⚠️ AVISO CRÍTICO DE LA OFICINA</span>
+                <span id="aviso-meta" style="font-size: 11px; color: #a16207;">Por: Danesi - 04/06/2026</span>
+            </div>
+            <div id="aviso-texto" class="announcement-body">
+                No hay avisos importantes fijados en este momento.
+            </div>
+        </div>
+
+        <!-- ENCABEZADO PRADOS DEL ESTE -->
+        <header>
+            <div class="header-info">
+                <h1>Sistema Integrado - Oficina Prados del Este</h1>
+                <p>Control Estadístico Diario y Base de Datos Permanente de Clientes</p>
+            </div>
+            <img src="Copia de IMG_7079.PNG" alt="Viajes Pereira RIF" class="main-logo">
+        </header>
+
+        <!-- PANELES DE NAVEGACIÓN -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('registro-diario')">📋 Reporte Diario e Ingreso</button>
+            <button class="tab-btn" onclick="switchTab('base-datos')">🗃️ Base de Datos Completa</button>
+            <button class="tab-btn" onclick="switchTab('bitacora-oficina')">📓 Bitácora de la Oficina</button>
+        </div>
+
+        <!-- DASHBOARD GENERAL -->
+        <div class="dashboard-grid">
+            <div class="kpi-card ventas">
+                <span class="kpi-title">Ventas de Hoy</span>
+                <div class="kpi-value" id="count-ventas">0 Ventas</div>
+            </div>
+            <div class="kpi-card cotizaciones">
+                <span class="kpi-title">Cotizaciones de Hoy</span>
+                <div class="kpi-value" id="count-cotizaciones">0</div>
+            </div>
+            <div class="kpi-card visitas">
+                <span class="kpi-title">Visitas de Hoy</span>
+                <div class="kpi-value" id="count-visitas">0</div>
+            </div>
+            <div class="kpi-card total-clientes">
+                <span class="kpi-title" id="kpi-titulo-clientes">Base de Datos Histórica</span>
+                <div class="kpi-value" id="count-clientes-totales">0 Clientes</div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 1: REPORTE DIARIO E INGRESO -->
+        <div id="registro-diario" class="tab-content active">
+            <div class="form-section">
+                <div class="form-title-container">
+                    <img src="Copia de WhatsApp Image 2026-05-28 at 11.22.37.jpeg" alt="Icono" class="form-icon-img">
+                    <h2>Registrar Actividad e Información del Cliente</h2>
+                </div>
+                <form id="main-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fecha">Fecha de Gestión</label>
+                            <input type="date" id="fecha" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="asesor">Asesor Atendió</label>
+                            <select id="asesor" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Daniela">Daniela</option>
+                                <option value="Danesi">Danesi</option>
+                                <option value="José">José</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo">Tipo de Actividad</label>
+                            <select id="tipo" onchange="verificarCamposDinamicos()" required>
+                                <option value="">Seleccione...</option>
+                                <option value="venta">Venta Realizada</option>
+                                <option value="cotizacion">Cotización Solicitada</option>
+                                <option value="visita">Visita a la Oficina</option>
+                            </select>
+                        </div>
+
+                        <!-- Selección Múltiple de Productos -->
+                        <div class="form-group full-width">
+                            <label>Productos / Servicios Adquiridos (Marque todos los que apliquen)</label>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-item"><input type="checkbox" name="producto-chk" value="Boletería"> ✈️ Boletería Aérea</label>
+                                <label class="checkbox-item"><input type="checkbox" name="producto-chk" value="Paquete"> 🏖️ Paquete Todo Incluido</label>
+                                <label class="checkbox-item"><input type="checkbox" name="producto-chk" value="Hotel"> 🏨 Reserva de Hotel</label>
+                                <label class="checkbox-item"><input type="checkbox" name="producto-chk" value="Seguro"> 🪪 Seguro de Viaje</label>
+                                <label class="checkbox-item"><input type="checkbox" name="producto-chk" value="Vehículo"> 🚗 Alquiler de Vehículo</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="destino">Destino del Viaje</label>
+                            <input type="text" id="destino" placeholder="Ej: Brasil, Margarita, Madrid" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nombre-cliente">Nombre Completo del Cliente</label>
+                            <input type="text" id="nombre-cliente" placeholder="Ej: Juan Pérez" required>
+                        </div>
+
+                        <!-- Campos Condicionales -->
+                        <div class="form-group conditional-group" id="grupo-cedula">
+                            <label for="cedula-cliente">Cédula de Identidad</label>
+                            <input type="text" id="cedula-cliente" placeholder="Ej: V-12345678">
+                        </div>
+                        <div class="form-group conditional-group" id="grupo-pago">
+                            <label for="forma-pago">Método de Pago Recibido</label>
+                            <select id="forma-pago">
+                                <option value="">Seleccione...</option>
+                                <option value="Zelle">Zelle</option>
+                                <option value="Efectivo ($)">Efectivo ($)</option>
+                                <option value="Efectivo (Bs)">Efectivo (Bs)</option>
+                                <option value="Pago Móvil">Pago Móvil</option>
+                                <option value="Transferencia">Transferencia Bancaria</option>
+                            </select>
+                        </div>
+                        <div class="form-group conditional-group" id="grupo-monto">
+                            <label for="monto-venta">Monto Total Cobrado ($)</label>
+                            <input type="number" id="monto-venta" step="0.01" min="0" placeholder="Ej: 450.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefono-cliente">Teléfono / WhatsApp</label>
+                            <input type="tel" id="telefono-cliente" placeholder="Ej: 0412-0000000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="correo-cliente">Correo Electrónico</label>
+                            <input type="email" id="correo-cliente" placeholder="Ej: juan@gmail.com" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="detalles">Detalles de la Gestión / Observaciones del Viaje</label>
+                            <textarea id="detalles" placeholder="Indicar detalles específicos..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-submit">Guardar en Base de Datos y Reporte</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla Movimiento Reciente -->
+            <div class="table-section">
+                <div style="padding: 15px 20px; background: #f8fafc; font-weight: bold; border-bottom: 1px solid var(--border-color)">
+                    ⚡ Movimiento Reciente de Hoy
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Asesor</th>
+                                <th>Cliente</th>
+                                <th>Servicios / Destino</th>
+                                <th>Actividad</th>
+                                <th>Detalles / Notas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hoy-table-body">
+                            <tr>
+                                <td colspan="6" class="no-data">No se han registrado movimientos hoy.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 2: BASE DE DATOS COMPLETA -->
+        <div id="base-datos" class="tab-content">
+            <div class="db-controls">
+                <input type="text" id="search-db" class="search-box" placeholder="🔍 Buscar por nombre, cédula, destino, asesor..." oninput="filtrarBaseDatos()">
+                
+                <select id="filter-pago" class="filter-select" onchange="filtrarBaseDatos()">
+                    <option value="">💰 Todos los Métodos de Pago</option>
+                    <option value="Zelle">Zelle</option>
+                    <option value="Efectivo ($)">Efectivo ($)</option>
+                    <option value="Efectivo (Bs)">Efectivo (Bs)</option>
+                    <option value="Pago Móvil">Pago Móvil</option>
+                    <option value="Transferencia">Transferencia Bancaria</option>
+                    <option value="N/A">Sin Pago (Cotización / Visita)</option>
+                </select>
+
+                <button class="btn-export" onclick="exportarExcelCSV()">📥 Exportar Base de Datos (CSV)</button>
+            </div>
+
+            <div class="table-section">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Control Seguimiento</th>
+                                <th>Fecha Registro</th>
+                                <th>Cliente / Ficha</th>
+                                <th>Contacto</th>
+                                <th>Atendido Por</th>
+                                <th>Estatus / Servicios</th>
+                                <th>Observaciones Históricas</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="db-table-body">
+                            <tr>
+                                <td colspan="9" class="no-data">La base de datos está vacía.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 3: BITÁCORA INTERNA (UPGRADED GERENCIAL) -->
+        <div id="bitacora-oficina" class="tab-content">
+            <div class="form-section" style="border-top: 4px solid var(--notes-color);">
+                <div class="form-title-container">
+                    <span style="font-size: 24px;">📓</span>
+                    <h2>Bitácora Interna y Reportes de la Oficina</h2>
+                </div>
+                <form id="notes-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fecha-nota">Fecha del Evento</label>
+                            <input type="date" id="fecha-nota" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="asesor-nota">Registrado Por</label>
+                            <select id="asesor-nota" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Daniela">Daniela</option>
+                                <option value="Danesi">Danesi</option>
+                                <option value="José">José</option>
+                            </select>
+                        </div>
+                        
+                        <!-- MODIFICACIÓN GERENCIAL 1: Clasificación por Categorías de Notas -->
+                        <div class="form-group">
+                            <label for="categoria-nota">Categoría de Novedad</label>
+                            <select id="categoria-nota" required>
+                                <option value="">Seleccione...</option>
+                                <option value="infraestructura">🔌 Servicios / Infraestructura</option>
+                                <option value="administracion">💵 Operación / Administración</option>
+                                <option value="mensajeria">📦 Mensajería / Proveedores</option>
+                                <option value="recordatorio">📌 Recordatorio General</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="texto-nota">Anotación / Evento ocurrido en la oficina</label>
+                            <textarea id="texto-nota" placeholder="Escriba aquí el reporte detalladamente..." required></textarea>
+                        </div>
+
+                        <!-- MODIFICACIÓN GERENCIAL 4: Casilla para Fijar como nota crítica de cartelera -->
+                        <div class="form-group full-width" style="flex-direction: row; gap: 10px; align-items: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px dashed var(--notes-color)">
+                            <input type="checkbox" id="fijar-nota-chk" style="width: 18px; height: 18px;">
+                            <label for="fijar-nota-chk" style="margin-bottom: 0; cursor: pointer; color: var(--notes-color)"><b>📌 Fijar esta anotación como un aviso importante en la cabecera del sistema</b></label>
+                        </div>
+
+                        <button type="submit" class="btn-submit btn-notes">Guardar Nota en la Bitácora</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- MODIFICACIÓN GERENCIAL 3: Controles de Filtros Avanzados para la Bitácora -->
+            <div class="db-controls" style="background: rgba(255, 255, 255, 0.9);">
+                <span style="font-weight: 700; font-size: 14px; color: var(--notes-color)">🔍 Filtrar Libro de Novedades:</span>
+                
+                <select id="filter-nota-asesor" class="filter-select" onchange="filtrarNotas()">
+                    <option value="">👤 Todos los Asesores</option>
+                    <option value="Daniela">Daniela</option>
+                    <option value="Danesi">Danesi</option>
+                    <option value="José">José</option>
+                </select>
+
+                <select id="filter-nota-cat" class="filter-select" onchange="filtrarNotas()">
+                    <option value="">📂 Todas las Categorías</option>
+                    <option value="infraestructura">🔌 Servicios / Infraestructura</option>
+                    <option value="administracion">💵 Operación / Administración</option>
+                    <option value="mensajeria">📦 Mensajería / Proveedores</option>
+                    <option value="recordatorio">📌 Recordatorio General</option>
+                </select>
+            </div>
+
+            <div class="table-section">
+                <div style="padding: 15px 20px; background: #f8fafc; font-weight: bold; border-bottom: 1px solid var(--border-color); color: var(--notes-color);">
+                    📋 Libro Histórico de Novedades Internas
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID Nota</th>
+                                <th style="width: 100px;">Estatus Tarea</th> <!-- MODIFICACIÓN GERENCIAL 2 -->
+                                <th style="width: 110px;">Fecha</th>
+                                <th style="width: 110px;">Asesor</th>
+                                <th style="width: 150px;">Categoría</th>
+                                <th>Novedad / Reporte Registrado</th>
+                                <th style="width: 80px;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notes-table-body">
+                            <tr>
+                                <td colspan="7" class="no-data">No hay reportes ni anotaciones registradas en la bitácora.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- --- LÓGICA DE AUTOMATIZACIÓN (JAVASCRIPT) --- -->
     <script>
-        const URL = 'https://script.google.com/macros/s/AKfycbx4oFr3QsXl9PjPwLwfaEagm_kRoZ2hQcDnyOxkRCShJ2wrakTFKTaF6PiALMMUGXA/exec';
-        const f = document.getElementById('f');
-        const b = document.getElementById('b');
-        const s = document.getElementById('status');
-        f.addEventListener('submit', async (e) => {
+        document.getElementById('fecha').valueAsDate = new Date();
+        document.getElementById('fecha-nota').valueAsDate = new Date();
+        
+        let listaRegistros = JSON.parse(localStorage.getItem("OficinaPradoRegistros")) || [];
+        let listaNotas = JSON.parse(localStorage.getItem("OficinaPradoNotasInternas")) || [];
+
+        actualizarVistas();
+        renderTablaNotas(listaNotas);
+        verificarAvisoFijado(); // Renderizar el banner al cargar
+
+        function verificarCamposDinamicos() {
+            const tipoActividad = document.getElementById('tipo').value;
+            const conCedula = document.getElementById('grupo-cedula');
+            const conPago = document.getElementById('grupo-pago');
+            const conMonto = document.getElementById('grupo-monto');
+            
+            const inCedula = document.getElementById('cedula-cliente');
+            const inPago = document.getElementById('forma-pago');
+            const inMonto = document.getElementById('monto-venta');
+
+            if (tipoActividad === 'venta') {
+                conCedula.style.display = 'flex';
+                conPago.style.display = 'flex';
+                conMonto.style.display = 'flex';
+                inCedula.required = true;
+                inPago.required = true;
+                inMonto.required = true;
+            } else {
+                conCedula.style.display = 'none';
+                conPago.style.display = 'none';
+                conMonto.style.display = 'none';
+                inCedula.required = false;
+                inPago.required = false;
+                inMonto.required = false;
+                inCedula.value = ""; 
+                inPago.value = "";
+                inMonto.value = "";
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            const botones = document.querySelectorAll('.tab-btn');
+            if (tabId === 'registro-diario') botones[0].classList.add('active');
+            if (tabId === 'base-datos') botones[1].classList.add('active');
+            if (tabId === 'bitacora-oficina') botones[2].classList.add('active');
+        }
+
+        // CONTROL DE CLIENTES
+        const form = document.getElementById('main-form');
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
-            b.disabled = true; b.innerText = 'Sincronizando...';
-            const d = { ejecutivo:f.ejecutivo.value, cedula:f.cedula.value, nombre:f.nombre.value, apellido:f.apellido.value, edad:f.edad.value, email:f.email.value, celular:f.celular.value };
-            try {
-                await fetch(URL, { method: 'POST', mode: 'no-cors', cache: 'no-cache', body: JSON.stringify(d) });
-                s.innerText = '¡Registro completado exitosamente!'; s.className = 'success'; f.reset();
-            } catch (err) { alert('Error al guardar en la base de datos'); } 
-            finally { b.disabled = false; b.innerText = 'Finalizar Registro'; setTimeout(() => { s.style.display = 'none'; }, 5000); }
+
+            const checkboxes = document.querySelectorAll('input[name="producto-chk"]:checked');
+            const serviciosSeleccionados = [];
+            checkboxes.forEach(chk => serviciosSeleccionados.push(chk.value));
+
+            if (serviciosSeleccionados.length === 0) {
+                alert("Por favor, seleccione al menos un Producto / Servicio antes de guardar.");
+                return;
+            }
+
+            const proximoId = listaRegistros.length > 0 ? listaRegistros[listaRegistros.length - 1].id + 1 : 1;
+            const montoCargado = parseFloat(document.getElementById('monto-venta').value) || 0;
+
+            const nuevoRegistro = {
+                id: proximoId,
+                fecha: document.getElementById('fecha').value,
+                asesor: document.getElementById('asesor').value,
+                tipo: document.getElementById('tipo').value,
+                producto: serviciosSeleccionados.join(', '), 
+                destino: document.getElementById('destino').value.trim(),
+                nombre: document.getElementById('nombre-cliente').value.trim(),
+                cedula: document.getElementById('cedula-cliente').value.trim() || "N/A", 
+                formaPago: document.getElementById('forma-pago').value || "N/A",
+                monto: montoCargado, 
+                telefono: document.getElementById('telefono-cliente').value.trim(),
+                correo: document.getElementById('correo-cliente').value.trim(),
+                detalles: document.getElementById('detalles').value.trim()
+            };
+
+            listaRegistros.push(nuevoRegistro);
+            localStorage.setItem("OficinaPradoRegistros", JSON.stringify(listaRegistros));
+
+            actualizarVistas();
+            limpiarFormulario();
+            verificarCamposDinamicos(); 
         });
+
+        function limpiarFormulario() {
+            document.getElementById('tipo').value = "";
+            document.getElementById('destino').value = "";
+            document.getElementById('nombre-cliente').value = "";
+            document.getElementById('cedula-cliente').value = "";
+            document.getElementById('forma-pago').value = "";
+            document.getElementById('monto-venta').value = "";
+            document.getElementById('telefono-cliente').value = "";
+            document.getElementById('correo-cliente').value = "";
+            document.getElementById('detalles').value = "";
+            document.querySelectorAll('input[name="producto-chk"]').forEach(chk => chk.checked = false);
+        }
+
+        function eliminarRegistro(id) {
+            if (confirm("¿Están seguros de que desean eliminar este registro?")) {
+                listaRegistros = listaRegistros.filter(item => item.id !== id);
+                localStorage.setItem("OficinaPradoRegistros", JSON.stringify(listaRegistros));
+                actualizarVistas();
+            }
+        }
+
+        function actualizarVistas() {
+            renderTablaHoy();
+            filtrarBaseDatos(); 
+        }
+
+        function actualizarEstadisticas(registrosAContar, metodoFiltrado = "") {
+            const fechaHoyString = new Date().toISOString().split('T')[0];
+            let ventasHoy = 0, cotizacionesHoy = 0, visitasHoy = 0;
+
+            listaRegistros.forEach(item => {
+                if (item.fecha === fechaHoyString) {
+                    if (item.tipo === 'venta') ventasHoy++;
+                    if (item.tipo === 'cotizacion') cotizacionesHoy++;
+                    if (item.tipo === 'visita') visitasHoy++;
+                }
+            });
+
+            document.getElementById('count-ventas').innerText = `${ventasHoy} ${ventasHoy === 1 ? 'Venta' : 'Ventas'}`;
+            document.getElementById('count-cotizaciones').innerText = cotizacionesHoy;
+            document.getElementById('count-visitas').innerText = visitasHoy;
+
+            if (metodoFiltrado !== "") {
+                let totalDineroFiltrado = 0;
+                registrosAContar.forEach(item => {
+                    totalDineroFiltrado += item.monto || 0;
+                });
+                const dineroFiltradoFormateado = totalDineroFiltrado.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                
+                document.getElementById('kpi-titulo-clientes').innerText = `Total en ${metodoFiltrado}`;
+                document.getElementById('count-clientes-totales').innerText = `$${dineroFiltradoFormateado} (${registrosAContar.length} reg)`;
+            } else {
+                document.getElementById('kpi-titulo-clientes').innerText = "Base de Datos Histórica";
+                document.getElementById('count-clientes-totales').innerText = `${listaRegistros.length} Clientes`;
+            }
+        }
+
+        function renderTablaHoy() {
+            const tbody = document.getElementById('hoy-table-body');
+            const fechaHoyString = new Date().toISOString().split('T')[0];
+            const deHoy = listaRegistros.filter(item => item.fecha === fechaHoyString);
+
+            if (deHoy.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="no-data">No se han registrado movimientos hoy.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            [...deHoy].reverse().forEach(item => {
+                const fila = document.createElement('tr');
+                const fFormateada = item.fecha.split('-').reverse().join('/');
+                const tipoTxt = item.tipo === 'venta' ? 'Venta' : item.tipo === 'cotizacion' ? 'Cotización' : 'Visita';
+                
+                const textoMonto = item.monto && item.monto > 0 ? ` <span style="color:#0369a1; font-weight:bold;">($${item.monto.toLocaleString('en-US', {minimumFractionDigits:2})})</span>` : '';
+                const textoCedula = item.cedula && item.cedula !== "N/A" ? ` <small style="color:#6d28d9; font-weight:bold;">(${item.cedula})</small>` : '';
+
+                fila.innerHTML = `
+                    <td><strong>${fFormateada}</strong></td>
+                    <td>${item.asesor}</td>
+                    <td class="client-name">${item.nombre}${textoCedula}${textoMonto}</td>
+                    <td><small>📦 ${item.producto}<br>📍 ${item.destino}</small></td>
+                    <td><span class="badge ${item.tipo}">${tipoTxt}</span></td>
+                    <td>${item.detalles}</td>
+                `;
+                tbody.appendChild(fila);
+            });
+        }
+
+        function calcularAlertaSeguimiento(fechaRegistroString, tipoActividad) {
+            if (tipoActividad === 'venta') return '<span class="status-pill ok">Al Día ✅</span>';
+
+            const fechaRegistro = new Date(fechaRegistroString + 'T00:00:00');
+            const fechaActual = new Date();
+            const diferenciaTiempo = fechaActual - fechaRegistro;
+            const diferenciaDias = diferenciaTiempo / (1000 * 60 * 60 * 24);
+
+            if (diferenciaDias > 3) {
+                return '<span class="status-pill danger">Urgente 🚨 (+72h)</span>';
+            } else if (diferenciaDias > 2) {
+                return '<span class="status-pill alert">Seguimiento ⚠️ (+48h)</span>';
+            }
+            return '<span class="status-pill ok">Reciente 👍</span>';
+        }
+
+        function filtrarBaseDatos() {
+            const busqueda = document.getElementById('search-db').value.toLowerCase().trim();
+            const filtroPago = document.getElementById('filter-pago').value;
+
+            let filtrados = listaRegistros;
+
+            if (filtroPago !== "") {
+                filtrados = filtrados.filter(item => item.formaPago === filtroPago);
+            }
+
+            if (busqueda !== "") {
+                filtrados = filtrados.filter(item => {
+                    return item.nombre.toLowerCase().includes(busqueda) || 
+                           item.cedula.toLowerCase().includes(busqueda) ||
+                           item.destino.toLowerCase().includes(busqueda) ||
+                           item.producto.toLowerCase().includes(busqueda) ||
+                           item.telefono.includes(busqueda) || 
+                           item.correo.toLowerCase().includes(busqueda) || 
+                           item.asesor.toLowerCase().includes(busqueda) || 
+                           item.detalles.toLowerCase().includes(busqueda);
+                });
+            }
+
+            actualizarEstadisticas(filtrados, filtroPago);
+            renderTablaBaseDatos(filtrados);
+        }
+
+        function renderTablaBaseDatos(registrosAMostrar) {
+            const tbody = document.getElementById('db-table-body');
+
+            if (registrosAMostrar.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="no-data">No se encontraron registros con este filtro.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            [...registrosAMostrar].reverse().forEach(item => {
+                const fila = document.createElement('tr');
+                const fFormateada = item.fecha.split('-').reverse().join('/');
+                const tipoTxt = item.tipo === 'venta' ? 'Venta' : item.tipo === 'cotizacion' ? 'Cotización' : 'Visita';
+                const controlPill = calcularAlertaSeguimiento(item.fecha, item.tipo);
+
+                const bloqueCedula = item.cedula && item.cedula !== "N/A" ? `<span class="client-id-card">CI: ${item.cedula}</span>` : '';
+                const bloquePago = item.formaPago && item.formaPago !== "N/A" ? `<span class="client-payment-card">💳 ${item.formaPago}</span>` : '';
+                const bloqueMonto = item.monto && item.monto > 0 ? `<span class="client-amount-card">💵 $${item.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>` : '';
+
+                fila.innerHTML = `
+                    <td><code>#${item.id}</code></td>
+                    <td>${controlPill}</td>
+                    <td>${fFormateada}</td>
+                    <td class="client-name">
+                        ${item.nombre}
+                        <div class="client-meta-box">
+                            ${bloqueCedula}
+                            ${bloquePago}
+                            ${bloqueMonto}
+                        </div>
+                    </td>
+                    <td class="contact-info">📞 ${item.telefono}<br>✉️ ${item.correo}</td>
+                    <td>${item.asesor}</td>
+                    <td><span class="badge ${item.tipo}">${tipoTxt}</span><br><small style="color:#64748b;">${item.producto} ➔ <b>${item.destino}</b></small></td>
+                    <td>${item.detalles}</td>
+                    <td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">🗑️ Borrar</button></td>
+                `;
+                tbody.appendChild(fila);
+            });
+        }
+
+        function exportarExcelCSV() {
+            if (listaRegistros.length === 0) {
+                alert("No hay datos para exportar.");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "ID;Fecha;Cliente;Cedula;Metodo Pago;Monto Venta $;Telefono;Correo;Asesor;Tipo Actividad;Producto;Destino;Detalles\n";
+
+            listaRegistros.forEach(item => {
+                const fFormateada = item.fecha.split('-').reverse().join('/');
+                const tipoTxt = item.tipo === 'venta' ? 'Venta' : item.tipo === 'cotizacion' ? 'Cotización' : 'Visita';
+                const productoLimpio = item.producto.replace(/,/g, ' -');
+                const nombreLimpio = item.nombre.replace(/;/g, ',');
+                const detallesLimpios = item.detalles.replace(/;/g, ',').replace(/\n/g, ' ');
+                const destinoLimpio = item.destino.replace(/;/g, ',');
+
+                csvContent += `${item.id};${fFormateada};${nombreLimpio};${item.cedula};${item.formaPago};${item.monto || 0};${item.telefono};${item.correo};${item.asesor};${tipoTxt};${productoLimpio};${destinoLimpio};${detallesLimpios}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Base_Completa_PradosDelEste_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+
+        // ==========================================
+        //  MODULO DE LA BITÁCORA INTERNA (UPGRADED)
+        // ==========================================
+        const notesForm = document.getElementById('notes-form');
+        notesForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const proximaNotaId = listaNotas.length > 0 ? listaNotas[listaNotas.length - 1].id + 1 : 1;
+            const checkFijar = document.getElementById('fijar-nota-chk').checked;
+
+            // Si el gerente decide fijar esta nota, quitamos el atributo de "fijado" a cualquier nota previa
+            if (checkFijar) {
+                listaNotas.forEach(nota => nota.fijada = false);
+            }
+
+            const nuevaNota = {
+                id: proximaNotaId,
+                fecha: document.getElementById('fecha-nota').value,
+                asesor: document.getElementById('asesor-nota').value,
+                categoria: document.getElementById('categoria-nota').value, // Guardar categoría
+                texto: document.getElementById('texto-nota').value.trim(),
+                estatus: "pendiente", // Estatus por defecto
+                fijada: checkFijar // Guardar si es destacada
+            };
+
+            listaNotas.push(nuevaNota);
+            localStorage.setItem("OficinaPradoNotasInternas", JSON.stringify(listaNotas));
+
+            filtrarNotas(); // Redibujar con los filtros activos
+            verificarAvisoFijado(); // Actualizar la pizarra superior
+            
+            // Limpieza
+            document.getElementById('texto-nota').value = "";
+            document.getElementById('categoria-nota').value = "";
+            document.getElementById('fijar-nota-chk').checked = false;
+            alert("¡Reporte guardado con éxito en el libro de novedades!");
+        });
+
+        // MODIFICACIÓN GERENCIAL: Función encargada de alternar entre Pendiente y Resuelto
+        function toggleEstatusNota(id) {
+            listaNotas = listaNotas.map(nota => {
+                if (nota.id === id) {
+                    nota.estatus = (nota.estatus === "pendiente") ? "resuelto" : "pendiente";
+                }
+                return nota;
+            });
+            localStorage.setItem("OficinaPradoNotasInternas", JSON.stringify(listaNotas));
+            filtrarNotas();
+        }
+
+        // MODIFICACIÓN GERENCIAL: Buscar y proyectar la nota fijada en la marquesina superior
+        function verificarAvisoFijado() {
+            const notaFijada = listaNotas.find(nota => nota.fijada === true);
+            const barraAviso = document.getElementById('pizarra-avisos');
+            
+            if (notaFijada) {
+                const fFormateada = notaFijada.fecha.split('-').reverse().join('/');
+                document.getElementById('aviso-meta').innerText = `Por: ${notaFijada.asesor} - ${fFormateada}`;
+                document.getElementById('aviso-texto').innerText = `📌 ${notaFijada.texto}`;
+                barraAviso.style.display = 'block';
+            } else {
+                barraAviso.style.display = 'none';
+            }
+        }
+
+        // MODIFICACIÓN GERENCIAL: Filtros cruzados para el libro de novedades
+        function filtrarNotas() {
+            const filtroAsesor = document.getElementById('filter-nota-asesor').value;
+            const filtroCat = document.getElementById('filter-nota-cat').value;
+
+            let notasFiltradas = listaNotas;
+
+            if (filtroAsesor !== "") {
+                notasFiltradas = notasFiltradas.filter(n => n.asesor === filtroAsesor);
+            }
+
+            if (filtroCat !== "") {
+                notasFiltradas = notasFiltradas.filter(n => n.categoria === filtroCat);
+            }
+
+            renderTablaNotas(notasFiltradas);
+        }
+
+        function renderTablaNotas(notasAMostrar) {
+            const tbody = document.getElementById('notes-table-body');
+
+            if (notasAMostrar.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="no-data">No se encontraron reportes con los filtros seleccionados.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            [...notasAMostrar].reverse().forEach(nota => {
+                const fila = document.createElement('tr');
+                const fFormateada = nota.fecha.split('-').reverse().join('/');
+                
+                // Mapear el nombre limpio de la categoría
+                let catTxt = "General";
+                if(nota.categoria === "infraestructura") catTxt = "🔌 Infraestructura";
+                if(nota.categoria === "administracion") catTxt = "💵 Administración";
+                if(nota.categoria === "mensajeria") catTxt = "📦 Mensajería";
+                if(nota.categoria === "recordatorio") catTxt = "📌 Recordatorio";
+
+                // Estilo del botón de estatus (rojo o verde)
+                const estatusPill = nota.estatus === "resuelto" 
+                    ? '<span class="status-pill ok">🟢 Resuelto</span>' 
+                    : '<span class="status-pill danger">🔴 Pendiente</span>';
+
+                // Si la nota está fijada, le agregamos un color de fondo especial a la fila
+                if (nota.fijada) {
+                    fila.style.backgroundColor = "#fffbeb";
+                }
+
+                fila.innerHTML = `
+                    <td><code>#N-${nota.id}</code></td>
+                    <td>
+                        <button class="btn-status-toggle" onclick="toggleEstatusNota(${nota.id})" title="Haga clic para cambiar el estatus">
+                            ${estatusPill}
+                        </button>
+                    </td>
+                    <td><strong>${fFormateada}</strong></td>
+                    <td style="font-weight:600;">${nota.asesor}</td>
+                    <td><span class="badge ${nota.categoria || 'recordatorio'}">${catTxt}</span></td>
+                    <td style="line-height:1.4; color: #1e293b;">${nota.fijada ? '<b>[📌 FIJADO]</b> ' : ''}${nota.texto}</td>
+                    <td><button class="btn-delete" onclick="eliminarNota(${nota.id})">🗑️ Borrar</button></td>
+                `;
+                tbody.appendChild(fila);
+            });
+        }
+
+        function eliminarNota(id) {
+            if (confirm("¿Seguros de eliminar esta anotación de la bitácora interna?")) {
+                const eraFijada = listaNotas.find(n => n.id === id)?.fijada;
+                listaNotas = listaNotas.filter(nota => nota.id !== id);
+                localStorage.setItem("OficinaPradoNotasInternas", JSON.stringify(listaNotas));
+                
+                if (eraFijada) verificarAvisoFijado();
+                filtrarNotas();
+            }
+        }
     </script>
 </body>
 </html>
