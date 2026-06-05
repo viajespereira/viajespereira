@@ -62,7 +62,7 @@
             z-index: 2;
         }
 
-        /* MODIFICACIÓN: Estilos para la Pizarra de Avisos Fijos Importantes */
+        /* Pizarra de Avisos Fijos Importantes */
         .sticky-announcement-bar {
             display: none;
             background: linear-gradient(90deg, #fef08a 0%, #fefbc3 100%);
@@ -301,6 +301,53 @@
             background-color: #ffffff;
         }
 
+        /* Área dinámica de acompañantes */
+        #contenedorAcompanantes {
+            display: none;
+            background-color: #f1f5f9;
+            padding: 20px;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .bloque-acompanante {
+            background: #ffffff;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .btn-accion-secundario {
+            background-color: #64748b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            margin-top: 5px;
+            width: fit-content;
+        }
+        .btn-accion-secundario:hover { background-color: #475569; }
+
+        .btn-eliminar-bloque {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
         .btn-submit {
             background-color: var(--accent-color);
             color: white;
@@ -419,6 +466,10 @@
         .badge.cotizacion { background-color: #ffedd5; color: #c2410c; }
         .badge.visita { background-color: #ecfeff; color: #0e7490; }
 
+        /* Estilos de Pasajeros */
+        .badge.titular { background-color: #e0f2fe; color: #0369a1; }
+        .badge.acompanante { background-color: #fae8ff; color: #86198f; }
+
         /* Estilos de Categorías de la Bitácora */
         .badge.infraestructura { background-color: #fee2e2; color: #991b1b; }
         .badge.administracion { background-color: #fef9c3; color: #854d0e; }
@@ -437,7 +488,6 @@
         .status-pill.alert { background-color: #fef9c3; color: #ca8a04; animation: pulse 2s infinite; }
         .status-pill.danger { background-color: #fee2e2; color: #dc2626; animation: pulse 1s infinite; }
 
-        /* MODIFICACIÓN: Botones interactivos para cambiar estatus en bitácora */
         .btn-status-toggle {
             background: none;
             border: none;
@@ -466,7 +516,7 @@
         .btn-delete:hover { background-color: #b91c1c; }
         .no-data { text-align: center; padding: 40px; color: #94a3b8; font-style: italic; }
         .client-name { font-weight: 600; color: var(--primary-color); }
-        
+         
         .client-meta-box {
             font-size: 11px;
             margin-top: 5px;
@@ -483,8 +533,7 @@
 <body>
 
     <div class="container">
-        
-        <!-- MODIFICACIÓN GERENCIAL: PIZARRA DE AVISOS IMPORTANTES FIJOS (BANNER SUPERIOR) -->
+         
         <div id="pizarra-avisos" class="sticky-announcement-bar">
             <div class="announcement-header">
                 <span>⚠️ AVISO CRÍTICO DE LA OFICINA</span>
@@ -495,7 +544,6 @@
             </div>
         </div>
 
-        <!-- ENCABEZADO PRADOS DEL ESTE -->
         <header>
             <div class="header-info">
                 <h1>Sistema Integrado - Oficina Prados del Este</h1>
@@ -504,14 +552,12 @@
             <img src="Copia de IMG_7079.PNG" alt="Viajes Pereira RIF" class="main-logo">
         </header>
 
-        <!-- PANELES DE NAVEGACIÓN -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('registro-diario')">📋 Reporte Diario e Ingreso</button>
             <button class="tab-btn" onclick="switchTab('base-datos')">🗃️ Base de Datos Completa</button>
             <button class="tab-btn" onclick="switchTab('bitacora-oficina')">📓 Bitácora de la Oficina</button>
         </div>
 
-        <!-- DASHBOARD GENERAL -->
         <div class="dashboard-grid">
             <div class="kpi-card ventas">
                 <span class="kpi-title">Ventas de Hoy</span>
@@ -531,7 +577,6 @@
             </div>
         </div>
 
-        <!-- PESTAÑA 1: REPORTE DIARIO E INGRESO -->
         <div id="registro-diario" class="tab-content active">
             <div class="form-section">
                 <div class="form-title-container">
@@ -563,7 +608,6 @@
                             </select>
                         </div>
 
-                        <!-- Selección Múltiple de Productos -->
                         <div class="form-group full-width">
                             <label>Productos / Servicios Adquiridos (Marque todos los que apliquen)</label>
                             <div class="checkbox-grid">
@@ -584,7 +628,6 @@
                             <input type="text" id="nombre-cliente" placeholder="Ej: Juan Pérez" required>
                         </div>
 
-                        <!-- Campos Condicionales -->
                         <div class="form-group conditional-group" id="grupo-cedula">
                             <label for="cedula-cliente">Cédula de Identidad</label>
                             <input type="text" id="cedula-cliente" placeholder="Ej: V-12345678">
@@ -614,8 +657,22 @@
                             <input type="email" id="correo-cliente" placeholder="Ej: juan@gmail.com" required>
                         </div>
 
+                        <div class="form-group full-width" style="flex-direction: row; gap: 10px; align-items: center; margin-top: 5px;">
+                            <input type="checkbox" id="viajaAcompanado" onchange="toggleAcompanantes()" style="width: 18px; height: 18px; cursor: pointer;">
+                            <label for="viajaAcompanado" style="margin-bottom: 0; cursor: pointer;"><b>👥 El cliente viaja acompañado (Agregar uno o más acompañantes)</b></label>
+                        </div>
+
+                        <div class="form-group full-width" id="contenedorAcompanantes">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h3 style="font-size: 14px; color: var(--accent-color);">Lista de Acompañantes</h3>
+                                <button type="button" class="btn-vp-blue btn-accion-secundario" onclick="agregarBloqueAcompanante()">➕ Añadir otro acompañante</button>
+                            </div>
+                            
+                            <div id="lista-bloques-acomp"></div>
+                        </div>
+
                         <div class="form-group full-width">
-                            <label for="detalles">Detalles de la Gestión / Observaciones del Viaje</label>
+                            <label for="detalles">Details de la Gestión / Observaciones del Viaje</label>
                             <textarea id="detalles" placeholder="Indicar detalles específicos..." required></textarea>
                         </div>
 
@@ -624,7 +681,6 @@
                 </form>
             </div>
 
-            <!-- Tabla Movimiento Reciente -->
             <div class="table-section">
                 <div style="padding: 15px 20px; background: #f8fafc; font-weight: bold; border-bottom: 1px solid var(--border-color)">
                     ⚡ Movimiento Reciente de Hoy
@@ -635,7 +691,7 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Asesor</th>
-                                <th>Cliente</th>
+                                <th>Pasajero / Tipo</th>
                                 <th>Servicios / Destino</th>
                                 <th>Actividad</th>
                                 <th>Detalles / Notas</th>
@@ -651,10 +707,9 @@
             </div>
         </div>
 
-        <!-- PESTAÑA 2: BASE DE DATOS COMPLETA -->
         <div id="base-datos" class="tab-content">
             <div class="db-controls">
-                <input type="text" id="search-db" class="search-box" placeholder="🔍 Buscar por nombre, cédula, destino, asesor..." oninput="filtrarBaseDatos()">
+                <input type="text" id="search-db" class="search-box" placeholder="🔍 Buscar por nombre, cédula, destino, asesor, tipo pasajero..." oninput="filtrarBaseDatos()">
                 
                 <select id="filter-pago" class="filter-select" onchange="filtrarBaseDatos()">
                     <option value="">💰 Todos los Métodos de Pago</option>
@@ -663,7 +718,7 @@
                     <option value="Efectivo (Bs)">Efectivo (Bs)</option>
                     <option value="Pago Móvil">Pago Móvil</option>
                     <option value="Transferencia">Transferencia Bancaria</option>
-                    <option value="N/A">Sin Pago (Cotización / Visita)</option>
+                    <option value="N/A">Sin Pago (Cotización / Visita / Acompañante)</option>
                 </select>
 
                 <button class="btn-export" onclick="exportarExcelCSV()">📥 Exportar Base de Datos (CSV)</button>
@@ -674,7 +729,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>ID Grupo</th>
                                 <th>Control Seguimiento</th>
                                 <th>Fecha Registro</th>
                                 <th>Cliente / Ficha</th>
@@ -695,7 +750,6 @@
             </div>
         </div>
 
-        <!-- PESTAÑA 3: BITÁCORA INTERNA (UPGRADED GERENCIAL) -->
         <div id="bitacora-oficina" class="tab-content">
             <div class="form-section" style="border-top: 4px solid var(--notes-color);">
                 <div class="form-title-container">
@@ -718,7 +772,6 @@
                             </select>
                         </div>
                         
-                        <!-- MODIFICACIÓN GERENCIAL 1: Clasificación por Categorías de Notas -->
                         <div class="form-group">
                             <label for="categoria-nota">Categoría de Novedad</label>
                             <select id="categoria-nota" required>
@@ -735,7 +788,6 @@
                             <textarea id="texto-nota" placeholder="Escriba aquí el reporte detalladamente..." required></textarea>
                         </div>
 
-                        <!-- MODIFICACIÓN GERENCIAL 4: Casilla para Fijar como nota crítica de cartelera -->
                         <div class="form-group full-width" style="flex-direction: row; gap: 10px; align-items: center; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px dashed var(--notes-color)">
                             <input type="checkbox" id="fijar-nota-chk" style="width: 18px; height: 18px;">
                             <label for="fijar-nota-chk" style="margin-bottom: 0; cursor: pointer; color: var(--notes-color)"><b>📌 Fijar esta anotación como un aviso importante en la cabecera del sistema</b></label>
@@ -746,7 +798,6 @@
                 </form>
             </div>
 
-            <!-- MODIFICACIÓN GERENCIAL 3: Controles de Filtros Avanzados para la Bitácora -->
             <div class="db-controls" style="background: rgba(255, 255, 255, 0.9);">
                 <span style="font-weight: 700; font-size: 14px; color: var(--notes-color)">🔍 Filtrar Libro de Novedades:</span>
                 
@@ -775,7 +826,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 80px;">ID Nota</th>
-                                <th style="width: 100px;">Estatus Tarea</th> <!-- MODIFICACIÓN GERENCIAL 2 -->
+                                <th style="width: 100px;">Estatus Tarea</th>
                                 <th style="width: 110px;">Fecha</th>
                                 <th style="width: 110px;">Asesor</th>
                                 <th style="width: 150px;">Categoría</th>
@@ -794,17 +845,17 @@
         </div>
     </div>
 
-    <!-- --- LÓGICA DE AUTOMATIZACIÓN (JAVASCRIPT) --- -->
     <script>
         document.getElementById('fecha').valueAsDate = new Date();
         document.getElementById('fecha-nota').valueAsDate = new Date();
         
         let listaRegistros = JSON.parse(localStorage.getItem("OficinaPradoRegistros")) || [];
         let listaNotas = JSON.parse(localStorage.getItem("OficinaPradoNotasInternas")) || [];
+        let contadorAcompanantes = 0; // Indexador único para los bloques dinámicos
 
         actualizarVistas();
         renderTablaNotas(listaNotas);
-        verificarAvisoFijado(); // Renderizar el banner al cargar
+        verificarAvisoFijado();
 
         function verificarCamposDinamicos() {
             const tipoActividad = document.getElementById('tipo').value;
@@ -836,6 +887,73 @@
             }
         }
 
+        // Muestra u oculta la sección multi-acompañante
+        function toggleAcompanantes() {
+            const checkbox = document.getElementById("viajaAcompanado");
+            const contenedor = document.getElementById("contenedorAcompanantes");
+            const lista = document.getElementById("lista-bloques-acomp");
+
+            if (checkbox.checked) {
+                contenedor.style.display = "block";
+                // Iniciar automáticamente con un bloque de acompañante si se marca la casilla
+                if(lista.children.length === 0) {
+                    agregarBloqueAcompanante();
+                }
+            } else {
+                contenedor.style.display = "none";
+                lista.innerHTML = ""; // Vacía todos los bloques cargados
+            }
+        }
+
+        // NUEVA FUNCIÓN: Agrega un set completo de campos para un nuevo acompañante de forma infinita
+        function agregarBloqueAcompanante() {
+            contadorAcompanantes++;
+            const lista = document.getElementById("lista-bloques-acomp");
+            
+            const divBloque = document.createElement("div");
+            divBloque.className = "bloque-acompanante";
+            divBloque.id = `bloque-acomp-${contadorAcompanantes}`;
+            
+            divBloque.innerHTML = `
+                <button type="button" class="btn-eliminar-bloque" onclick="eliminarBloqueAcompanante(${contadorAcompanantes})">❌ Quitar</button>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 5px;">
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" class="acomp-input-nombre" placeholder="Ej: Maria Pérez" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula o Pasaporte</label>
+                        <input type="text" class="acomp-input-cedula" placeholder="Ej: V-87654321" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Parentesco / Relación</label>
+                        <select class="acomp-input-parentesco">
+                            <option value="No especificado">Seleccione...</option>
+                            <option value="Esposo(a)">Esposo(a)</option>
+                            <option value="Hijo(a)">Hijo(a)</option>
+                            <option value="Familiar">Familiar</option>
+                            <option value="Amigo(a)">Amigo(a)</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            lista.appendChild(divBloque);
+        }
+
+        // Remueve un bloque de acompañante específico de la pantalla
+        function eliminarBloqueAcompanante(idBloque) {
+            const bloque = document.getElementById(`bloque-acomp-${idBloque}`);
+            if(bloque) bloque.remove();
+            
+            // Si quitaron todos los bloques, desmarcar la casilla general
+            const lista = document.getElementById("lista-bloques-acomp");
+            if(lista.children.length === 0) {
+                document.getElementById("viajaAcompanado").checked = false;
+                document.getElementById("contenedorAcompanantes").style.display = "none";
+            }
+        }
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -847,7 +965,7 @@
             if (tabId === 'bitacora-oficina') botones[2].classList.add('active');
         }
 
-        // CONTROL DE CLIENTES
+        // CONTROL DE REGISTRO MODIFICADO MULTI-PASAJERO
         const form = document.getElementById('main-form');
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -861,11 +979,13 @@
                 return;
             }
 
-            const proximoId = listaRegistros.length > 0 ? listaRegistros[listaRegistros.length - 1].id + 1 : 1;
+            // Identificador de grupo basado en milisegundos para amarrar la familia entera
+            const timestampGrupo = new Date().getTime();
             const montoCargado = parseFloat(document.getElementById('monto-venta').value) || 0;
-
-            const nuevoRegistro = {
-                id: proximoId,
+            
+            // 1. Guardar Titular
+            const nuevoTitular = {
+                id: timestampGrupo, 
                 fecha: document.getElementById('fecha').value,
                 asesor: document.getElementById('asesor').value,
                 tipo: document.getElementById('tipo').value,
@@ -877,15 +997,53 @@
                 monto: montoCargado, 
                 telefono: document.getElementById('telefono-cliente').value.trim(),
                 correo: document.getElementById('correo-cliente').value.trim(),
-                detalles: document.getElementById('detalles').value.trim()
+                detalles: document.getElementById('detalles').value.trim(),
+                tipoPasajero: "Titular",
+                parentesco: "-"
             };
 
-            listaRegistros.push(nuevoRegistro);
+            listaRegistros.push(nuevoTitular);
+
+            // 2. Procesar e inyectar cada acompañante cargado dinámicamente
+            const chkAcomp = document.getElementById("viajaAcompanado").checked;
+            if (chkAcomp) {
+                const bloques = document.querySelectorAll(".bloque-acompanante");
+                bloques.forEach(bloque => {
+                    const nombreAcomp = bloque.querySelector(".acomp-input-nombre").value.trim();
+                    const cedulaAcomp = bloque.querySelector(".acomp-input-cedula").value.trim();
+                    const parentescoAcomp = bloque.querySelector(".acomp-input-parentesco").value;
+
+                    if(nombreAcomp && cedulaAcomp) {
+                        const nuevoAcompanante = {
+                            id: timestampGrupo, // Mismo ID de grupo familiar para agruparlos
+                            fecha: document.getElementById('fecha').value,
+                            asesor: document.getElementById('asesor').value,
+                            tipo: document.getElementById('tipo').value,
+                            producto: serviciosSeleccionados.join(', '), 
+                            destino: document.getElementById('destino').value.trim(),
+                            nombre: nombreAcomp,
+                            cedula: cedulaAcomp,
+                            formaPago: "N/A",
+                            monto: 0,
+                            telefono: document.getElementById('telefono-cliente').value.trim(), // Heredado
+                            correo: document.getElementById('correo-cliente').value.trim(),
+                            detalles: `[Acompañante de ${nuevoTitular.nombre}] — ` + document.getElementById('detalles').value.trim(),
+                            tipoPasajero: "Acompañante",
+                            parentesco: parentescoAcomp
+                        };
+                        listaRegistros.push(nuevoAcompanante);
+                    }
+                });
+            }
+
             localStorage.setItem("OficinaPradoRegistros", JSON.stringify(listaRegistros));
 
             actualizarVistas();
             limpiarFormulario();
             verificarCamposDinamicos(); 
+            document.getElementById("viajaAcompanado").checked = false;
+            toggleAcompanantes();
+            alert("¡Todo el grupo de pasajeros ha sido registrado y agrupado con éxito!");
         });
 
         function limpiarFormulario() {
@@ -901,8 +1059,9 @@
             document.querySelectorAll('input[name="producto-chk"]').forEach(chk => chk.checked = false);
         }
 
+        // Elimina al grupo familiar completo buscando por ID de vínculo común
         function eliminarRegistro(id) {
-            if (confirm("¿Están seguros de que desean eliminar este registro?")) {
+            if (confirm("¿Están seguros de eliminar este registro? Al ser un grupo amarrado, se borrarán el titular y todos sus acompañantes asociados.")) {
                 listaRegistros = listaRegistros.filter(item => item.id !== id);
                 localStorage.setItem("OficinaPradoRegistros", JSON.stringify(listaRegistros));
                 actualizarVistas();
@@ -919,7 +1078,7 @@
             let ventasHoy = 0, cotizacionesHoy = 0, visitasHoy = 0;
 
             listaRegistros.forEach(item => {
-                if (item.fecha === fechaHoyString) {
+                if (item.fecha === fechaHoyString && item.tipoPasajero === "Titular") {
                     if (item.tipo === 'venta') ventasHoy++;
                     if (item.tipo === 'cotizacion') cotizacionesHoy++;
                     if (item.tipo === 'visita') visitasHoy++;
@@ -941,7 +1100,7 @@
                 document.getElementById('count-clientes-totales').innerText = `$${dineroFiltradoFormateado} (${registrosAContar.length} reg)`;
             } else {
                 document.getElementById('kpi-titulo-clientes').innerText = "Base de Datos Histórica";
-                document.getElementById('count-clientes-totales').innerText = `${listaRegistros.length} Clientes`;
+                document.getElementById('count-clientes-totales').innerText = `${listaRegistros.length} Pasajeros`;
             }
         }
 
@@ -961,13 +1120,20 @@
                 const fFormateada = item.fecha.split('-').reverse().join('/');
                 const tipoTxt = item.tipo === 'venta' ? 'Venta' : item.tipo === 'cotizacion' ? 'Cotización' : 'Visita';
                 
-                const textoMonto = item.monto && item.monto > 0 ? ` <span style="color:#0369a1; font-weight:bold;">($${item.monto.toLocaleString('en-US', {minimumFractionDigits:2})})</span>` : '';
+                const textoMonto = item.monto && item.monto > 0 ? ` <span style="color:#16a34a; font-weight:bold;">($${item.monto.toLocaleString('en-US', {minimumFractionDigits:2})})</span>` : '';
                 const textoCedula = item.cedula && item.cedula !== "N/A" ? ` <small style="color:#6d28d9; font-weight:bold;">(${item.cedula})</small>` : '';
+                
+                const badgePasajero = item.tipoPasajero === "Titular" 
+                    ? `<span class="badge titular">Titular</span>` 
+                    : `<span class="badge acompañante">Acomp. (${item.parentesco})</span>`;
 
                 fila.innerHTML = `
                     <td><strong>${fFormateada}</strong></td>
                     <td>${item.asesor}</td>
-                    <td class="client-name">${item.nombre}${textoCedula}${textoMonto}</td>
+                    <td class="client-name">
+                        ${item.nombre}${textoCedula}${textoMonto}<br>
+                        ${badgePasajero}
+                    </td>
                     <td><small>📦 ${item.producto}<br>📍 ${item.destino}</small></td>
                     <td><span class="badge ${item.tipo}">${tipoTxt}</span></td>
                     <td>${item.detalles}</td>
@@ -1011,6 +1177,7 @@
                            item.telefono.includes(busqueda) || 
                            item.correo.toLowerCase().includes(busqueda) || 
                            item.asesor.toLowerCase().includes(busqueda) || 
+                           item.tipoPasajero.toLowerCase().includes(busqueda) ||
                            item.detalles.toLowerCase().includes(busqueda);
                 });
             }
@@ -1028,7 +1195,11 @@
             }
 
             tbody.innerHTML = "";
-            [...registrosAMostrar].reverse().forEach(item => {
+            
+            // Ordenar para mantener agrupados a los miembros de un mismo ID familiar juntos
+            let registrosOrdenados = [...registrosAMostrar].sort((a, b) => b.id - a.id);
+
+            registrosOrdenados.forEach(item => {
                 const fila = document.createElement('tr');
                 const fFormateada = item.fecha.split('-').reverse().join('/');
                 const tipoTxt = item.tipo === 'venta' ? 'Venta' : item.tipo === 'cotizacion' ? 'Cotización' : 'Visita';
@@ -1037,15 +1208,25 @@
                 const bloqueCedula = item.cedula && item.cedula !== "N/A" ? `<span class="client-id-card">CI: ${item.cedula}</span>` : '';
                 const bloquePago = item.formaPago && item.formaPago !== "N/A" ? `<span class="client-payment-card">💳 ${item.formaPago}</span>` : '';
                 const bloqueMonto = item.monto && item.monto > 0 ? `<span class="client-amount-card">💵 $${item.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>` : '';
+                
+                const badgePasajero = item.tipoPasajero === "Titular" 
+                    ? `<span class="badge titular" style="margin-top:4px;">Titular</span>` 
+                    : `<span class="badge acompanante" style="margin-top:4px;">Acomp. (${item.parentesco})</span>`;
+
+                // Un sombreado muy sutil para alternar bloques de familias en la visualización agrupada
+                if (item.id % 2 === 0) {
+                    fila.style.backgroundColor = "rgba(0, 70, 173, 0.02)";
+                }
 
                 fila.innerHTML = `
-                    <td><code>#${item.id}</code></td>
+                    <td><code>#G-${item.id.toString().slice(-6)}</code></td>
                     <td>${controlPill}</td>
                     <td>${fFormateada}</td>
                     <td class="client-name">
-                        ${item.nombre}
+                        {nombre_placeholder}
                         <div class="client-meta-box">
                             ${bloqueCedula}
+                            ${badgePasajero}
                             ${bloquePago}
                             ${bloqueMonto}
                         </div>
@@ -1054,8 +1235,8 @@
                     <td>${item.asesor}</td>
                     <td><span class="badge ${item.tipo}">${tipoTxt}</span><br><small style="color:#64748b;">${item.producto} ➔ <b>${item.destino}</b></small></td>
                     <td>${item.detalles}</td>
-                    <td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">🗑️ Borrar</button></td>
-                `;
+                    <td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">🗑️ Borrar Fam.</button></td>
+                `.replace('{nombre_placeholder}', item.nombre);
                 tbody.appendChild(fila);
             });
         }
@@ -1066,9 +1247,12 @@
                 return;
             }
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "ID;Fecha;Cliente;Cedula;Metodo Pago;Monto Venta $;Telefono;Correo;Asesor;Tipo Actividad;Producto;Destino;Detalles\n";
+            csvContent += "ID Grupo;Fecha;Pasajero;Cedula;Tipo Pasajero;Parentesco;Metodo Pago;Monto Venta $;Telefono;Correo;Asesor;Tipo Actividad;Producto;Destino;Detalles\n";
 
-            listaRegistros.forEach(item => {
+            // Se exporta ordenado por ID de grupo familiar para que en Excel salgan juntos
+            let registrosExportar = [...listaRegistros].sort((a, b) => b.id - a.id);
+
+            registrosExportar.forEach(item => {
                 const fFormateada = item.fecha.split('-').reverse().join('/');
                 const tipoTxt = item.tipo === 'venta' ? 'Venta' : item.tipo === 'cotizacion' ? 'Cotización' : 'Visita';
                 const productoLimpio = item.producto.replace(/,/g, ' -');
@@ -1076,21 +1260,21 @@
                 const detallesLimpios = item.detalles.replace(/;/g, ',').replace(/\n/g, ' ');
                 const destinoLimpio = item.destino.replace(/;/g, ',');
 
-                csvContent += `${item.id};${fFormateada};${nombreLimpio};${item.cedula};${item.formaPago};${item.monto || 0};${item.telefono};${item.correo};${item.asesor};${tipoTxt};${productoLimpio};${destinoLimpio};${detallesLimpios}\n`;
+                csvContent += `${item.id};${fFormateada};${nombreLimpio};${item.cedula};${item.tipoPasajero};${item.parentesco};${item.formaPago};${item.monto || 0};${item.telefono};${item.correo};${item.asesor};${tipoTxt};${productoLimpio};${destinoLimpio};${detallesLimpios}\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
+            const fechaArchivo = new Date().toISOString().split('T')[0];
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Base_Completa_PradosDelEste_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `Base_Pasajeros_PradosDelEste_${fechaArchivo}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-
         // ==========================================
-        //  MODULO DE LA BITÁCORA INTERNA (UPGRADED)
+        //  MODULO DE LA BITÁCORA INTERNA
         // ==========================================
         const notesForm = document.getElementById('notes-form');
         notesForm.addEventListener('submit', function(e) {
@@ -1099,7 +1283,6 @@
             const proximaNotaId = listaNotas.length > 0 ? listaNotas[listaNotas.length - 1].id + 1 : 1;
             const checkFijar = document.getElementById('fijar-nota-chk').checked;
 
-            // Si el gerente decide fijar esta nota, quitamos el atributo de "fijado" a cualquier nota previa
             if (checkFijar) {
                 listaNotas.forEach(nota => nota.fijada = false);
             }
@@ -1108,26 +1291,24 @@
                 id: proximaNotaId,
                 fecha: document.getElementById('fecha-nota').value,
                 asesor: document.getElementById('asesor-nota').value,
-                categoria: document.getElementById('categoria-nota').value, // Guardar categoría
+                categoria: document.getElementById('categoria-nota').value,
                 texto: document.getElementById('texto-nota').value.trim(),
-                estatus: "pendiente", // Estatus por defecto
-                fijada: checkFijar // Guardar si es destacada
+                estatus: "pendiente",
+                fijada: checkFijar
             };
 
             listaNotas.push(nuevaNota);
             localStorage.setItem("OficinaPradoNotasInternas", JSON.stringify(listaNotas));
 
-            filtrarNotas(); // Redibujar con los filtros activos
-            verificarAvisoFijado(); // Actualizar la pizarra superior
+            filtrarNotas();
+            verificarAvisoFijado();
             
-            // Limpieza
             document.getElementById('texto-nota').value = "";
             document.getElementById('categoria-nota').value = "";
             document.getElementById('fijar-nota-chk').checked = false;
             alert("¡Reporte guardado con éxito en el libro de novedades!");
         });
 
-        // MODIFICACIÓN GERENCIAL: Función encargada de alternar entre Pendiente y Resuelto
         function toggleEstatusNota(id) {
             listaNotas = listaNotas.map(nota => {
                 if (nota.id === id) {
@@ -1139,7 +1320,6 @@
             filtrarNotas();
         }
 
-        // MODIFICACIÓN GERENCIAL: Buscar y proyectar la nota fijada en la marquesina superior
         function verificarAvisoFijado() {
             const notaFijada = listaNotas.find(nota => nota.fijada === true);
             const barraAviso = document.getElementById('pizarra-avisos');
@@ -1154,7 +1334,6 @@
             }
         }
 
-        // MODIFICACIÓN GERENCIAL: Filtros cruzados para el libro de novedades
         function filtrarNotas() {
             const filtroAsesor = document.getElementById('filter-nota-asesor').value;
             const filtroCat = document.getElementById('filter-nota-cat').value;
@@ -1185,19 +1364,16 @@
                 const fila = document.createElement('tr');
                 const fFormateada = nota.fecha.split('-').reverse().join('/');
                 
-                // Mapear el nombre limpio de la categoría
                 let catTxt = "General";
                 if(nota.categoria === "infraestructura") catTxt = "🔌 Infraestructura";
                 if(nota.categoria === "administracion") catTxt = "💵 Administración";
                 if(nota.categoria === "mensajeria") catTxt = "📦 Mensajería";
                 if(nota.categoria === "recordatorio") catTxt = "📌 Recordatorio";
 
-                // Estilo del botón de estatus (rojo o verde)
                 const estatusPill = nota.estatus === "resuelto" 
                     ? '<span class="status-pill ok">🟢 Resuelto</span>' 
                     : '<span class="status-pill danger">🔴 Pendiente</span>';
 
-                // Si la nota está fijada, le agregamos un color de fondo especial a la fila
                 if (nota.fijada) {
                     fila.style.backgroundColor = "#fffbeb";
                 }
@@ -1214,7 +1390,7 @@
                     <td><span class="badge ${nota.categoria || 'recordatorio'}">${catTxt}</span></td>
                     <td style="line-height:1.4; color: #1e293b;">${nota.fijada ? '<b>[📌 FIJADO]</b> ' : ''}${nota.texto}</td>
                     <td><button class="btn-delete" onclick="eliminarNota(${nota.id})">🗑️ Borrar</button></td>
-                `;
+                `;       
                 tbody.appendChild(fila);
             });
         }
