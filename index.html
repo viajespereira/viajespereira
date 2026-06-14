@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Control Diario y Base de Datos - Oficina Prados del Este</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* --- ESTILOS GENERALES Y VARIABLES (CSS) --- */
         :root {
@@ -38,7 +39,6 @@
             min-height: 100vh;
         }
 
-        /* Efecto marca de agua fijo con la mascota en el fondo */
         body::before {
             content: "";
             position: fixed;
@@ -110,15 +110,21 @@
             margin-bottom: 5px;
         }
 
-        .header-info p {
-            color: #94a3b8;
-            font-size: 14px;
+        .header-brand-box {
+            text-align: right;
         }
 
-        .main-logo {
-            height: 75px;
-            object-fit: contain;
-            filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, 0.15));
+        .header-brand-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fcd116;
+            margin: 0;
+        }
+
+        .header-brand-user {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 500;
         }
 
         /* --- TABS --- */
@@ -301,7 +307,6 @@
             background-color: #ffffff;
         }
 
-        /* Área dinámica de acompañantes */
         #contenedorAcompanantes {
             display: none;
             background-color: #f1f5f9;
@@ -466,11 +471,9 @@
         .badge.cotizacion { background-color: #ffedd5; color: #c2410c; }
         .badge.visita { background-color: #ecfeff; color: #0e7490; }
 
-        /* Estilos de Pasajeros */
         .badge.titular { background-color: #e0f2fe; color: #0369a1; }
         .badge.acompanante { background-color: #fae8ff; color: #86198f; }
 
-        /* Estilos de Categorías de la Bitácora */
         .badge.infraestructura { background-color: #fee2e2; color: #991b1b; }
         .badge.administracion { background-color: #fef9c3; color: #854d0e; }
         .badge.mensajeria { background-color: #e0f2fe; color: #075985; }
@@ -478,15 +481,18 @@
 
         .status-pill {
             display: inline-block;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: bold;
             text-align: center;
+            cursor: pointer;
+            border: none;
         }
         .status-pill.ok { background-color: #dcfce7; color: #16a34a; }
         .status-pill.alert { background-color: #fef9c3; color: #ca8a04; animation: pulse 2s infinite; }
         .status-pill.danger { background-color: #fee2e2; color: #dc2626; animation: pulse 1s infinite; }
+        .status-pill.contacted { background-color: #f1f5f9; color: #2563eb; border: 1px dashed #2563eb; }
 
         .btn-status-toggle {
             background: none;
@@ -549,7 +555,10 @@
                 <h1>Sistema Integrado - Oficina Prados del Este</h1>
                 <p>Control Estadístico Diario y Base de Datos Permanente de Clientes</p>
             </div>
-            <img src="Copia de IMG_7079.PNG" alt="Viajes Pereira RIF" class="main-logo">
+            <div class="header-brand-box">
+                <div class="header-brand-title"><i class="fas fa-plane-departure"></i> Viajes Pereira</div>
+                <div class="header-brand-user">@viajespereira</div>
+            </div>
         </header>
 
         <div class="tabs">
@@ -560,15 +569,15 @@
 
         <div class="dashboard-grid">
             <div class="kpi-card ventas">
-                <span class="kpi-title">Ventas de Hoy</span>
+                <span class="kpi-title">Ventas Totales</span>
                 <div class="kpi-value" id="count-ventas">0 Ventas</div>
             </div>
             <div class="kpi-card cotizaciones">
-                <span class="kpi-title">Cotizaciones de Hoy</span>
+                <span class="kpi-title">Cotizaciones Totales</span>
                 <div class="kpi-value" id="count-cotizaciones">0</div>
             </div>
             <div class="kpi-card visitas">
-                <span class="kpi-title">Visitas de Hoy</span>
+                <span class="kpi-title">Visitas Totales</span>
                 <div class="kpi-value" id="count-visitas">0</div>
             </div>
             <div class="kpi-card total-clientes">
@@ -581,23 +590,18 @@
             <div class="form-section">
                 <div class="form-title-container">
                     <img src="Copia de WhatsApp Image 2026-05-28 at 11.22.37.jpeg" alt="Icono" class="form-icon-img">
-                    <h2>Registrar Actividad e Información del Cliente</h2>
+                    <h2 id="titulo-formulario-clientes">Registrar Actividad e Información del Cliente</h2>
                 </div>
-                <form id="main-form">
+                <form id="main-form" onsubmit="return false;">
+                    <input type="hidden" id="cliente-id-edicion">
+                    <input type="hidden" id="cliente-key-edicion">
+
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="fecha">Fecha de Gestión</label>
                             <input type="date" id="fecha" required>
                         </div>
-                        <div class="form-group">
-                            <label for="asesor">Asesor Atendió</label>
-                            <select id="asesor" required>
-                                <option value="">Seleccione...</option>
-                                <option value="Daniela">Daniela</option>
-                                <option value="Danesi">Danesi</option>
-                                <option value="José">José</option>
-                            </select>
-                        </div>
+                        
                         <div class="form-group">
                             <label for="tipo">Tipo de Actividad</label>
                             <select id="tipo" onchange="verificarCamposDinamicos()" required>
@@ -606,6 +610,11 @@
                                 <option value="cotizacion">Cotización Solicitada</option>
                                 <option value="visita">Visita a la Oficina</option>
                             </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="destino">Destino del Viaje</label>
+                            <input type="text" id="destino" placeholder="Ej: Brasil, Margarita, Madrid" required>
                         </div>
 
                         <div class="form-group full-width">
@@ -620,10 +629,6 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="destino">Destino del Viaje</label>
-                            <input type="text" id="destino" placeholder="Ej: Brasil, Margarita, Madrid" required>
-                        </div>
-                        <div class="form-group">
                             <label for="nombre-cliente">Nombre Completo del Cliente</label>
                             <input type="text" id="nombre-cliente" placeholder="Ej: Juan Pérez" required>
                         </div>
@@ -633,7 +638,7 @@
                             <input type="text" id="cedula-cliente" placeholder="Ej: V-12345678">
                         </div>
                         <div class="form-group conditional-group" id="grupo-pago">
-                            <label for="forma-pago">Método de Pago Recibido</label>
+                            <label for="forma-pago">Método de Pago Received</label>
                             <select id="forma-pago">
                                 <option value="">Seleccione...</option>
                                 <option value="Zelle">Zelle</option>
@@ -652,12 +657,13 @@
                             <label for="telefono-cliente">Teléfono / WhatsApp</label>
                             <input type="tel" id="telefono-cliente" placeholder="Ej: 0412-0000000" required>
                         </div>
+                        
                         <div class="form-group">
-                            <label for="correo-cliente">Correo Electrónico</label>
+                            <label for="correo-cliente">Correo Electrónico <span id="email-required-star" class="text-danger">*</span></label>
                             <input type="email" id="correo-cliente" placeholder="Ej: juan@gmail.com" required>
                         </div>
 
-                        <div class="form-group full-width" style="flex-direction: row; gap: 10px; align-items: center; margin-top: 5px;">
+                        <div class="form-group full-width" style="flex-direction: row; gap: 10px; align-items: center; margin-top: 5px;" id="wrapper-acomp-checkbox">
                             <input type="checkbox" id="viajaAcompanado" onchange="toggleAcompanantes()" style="width: 18px; height: 18px; cursor: pointer;">
                             <label for="viajaAcompanado" style="margin-bottom: 0; cursor: pointer;"><b>👥 El cliente viaja acompañado (Agregar uno o más acompañantes)</b></label>
                         </div>
@@ -672,25 +678,25 @@
                         </div>
 
                         <div class="form-group full-width">
-                            <label for="detalles">Details de la Gestión / Observaciones del Viaje</label>
+                            <label for="detalles">Detalles de la Gestión / Observaciones del Viaje</label>
                             <textarea id="detalles" placeholder="Indicar detalles específicos..." required></textarea>
                         </div>
 
-                        <button type="submit" class="btn-submit">Guardar en Base de Datos y Reporte</button>
+                        <button type="button" id="btn-submit-cliente" class="btn-submit" onclick="procesarEnvioFormulario()">Guardar en Base de Datos y Reporte</button>
+                        <button type="button" id="btn-cancelar-cliente-edicion" class="btn-accion-secundario" style="display:none; margin-top:10px;" onclick="cancelarEdicionCliente()">Cancelar Edición del Cliente</button>
                     </div>
                 </form>
             </div>
 
             <div class="table-section">
                 <div style="padding: 15px 20px; background: #f8fafc; font-weight: bold; border-bottom: 1px solid var(--border-color)">
-                    ⚡ Movimiento Reciente de Hoy
+                    ⚡ Últimos Movimientos Registrados en la Oficina
                 </div>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Fecha</th>
-                                <th>Asesor</th>
+                                <th>Fecha Registro</th>
                                 <th>Pasajero / Tipo</th>
                                 <th>Servicios / Destino</th>
                                 <th>Actividad</th>
@@ -699,7 +705,7 @@
                         </thead>
                         <tbody id="hoy-table-body">
                             <tr>
-                                <td colspan="6" class="no-data">No se han registrado movimientos hoy.</td>
+                                <td colspan="5" class="no-data">Cargando base de datos...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -709,7 +715,7 @@
 
         <div id="base-datos" class="tab-content">
             <div class="db-controls">
-                <input type="text" id="search-db" class="search-box" placeholder="🔍 Buscar por nombre, cédula, destino, asesor, tipo pasajero..." oninput="filtrarBaseDatos()">
+                <input type="text" id="search-db" class="search-box" placeholder="🔍 Buscar por nombre, cédula, destino o servicios..." oninput="filtrarBaseDatos()">
                 
                 <select id="filter-pago" class="filter-select" onchange="filtrarBaseDatos()">
                     <option value="">💰 Todos los Métodos de Pago</option>
@@ -734,15 +740,14 @@
                                 <th>Fecha Registro</th>
                                 <th>Cliente / Ficha</th>
                                 <th>Contacto</th>
-                                <th>Atendido Por</th>
                                 <th>Estatus / Servicios</th>
                                 <th>Observaciones Históricas</th>
-                                <th>Acción</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="db-table-body">
                             <tr>
-                                <td colspan="9" class="no-data">La base de datos está vacía.</td>
+                                <td colspan="8" class="no-data">La base de datos está vacía.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -754,33 +759,36 @@
             <div class="form-section" style="border-top: 4px solid var(--notes-color);">
                 <div class="form-title-container">
                     <span style="font-size: 24px;">📓</span>
-                    <h2>Bitácora Interna y Reportes de la Oficina</h2>
+                    <h2 id="titulo-formulario-notas">Bitácora Interna y Reportes de la Oficina</h2>
                 </div>
-                <form id="notes-form">
+                <form id="notes-form" onsubmit="return false;">
+                    <input type="hidden" id="nota-id-edicion">
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label for="fecha-nota">Fecha del Evento</label>
-                            <input type="date" id="fecha-nota" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="asesor-nota">Registrado Por</label>
-                            <select id="asesor-nota" required>
-                                <option value="">Seleccione...</option>
-                                <option value="Daniela">Daniela</option>
-                                <option value="Danesi">Danesi</option>
-                                <option value="José">José</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="categoria-nota">Categoría de Novedad</label>
-                            <select id="categoria-nota" required>
-                                <option value="">Seleccione...</option>
-                                <option value="infraestructura">🔌 Servicios / Infraestructura</option>
-                                <option value="administracion">💵 Operación / Administración</option>
-                                <option value="mensajeria">📦 Mensajería / Proveedores</option>
-                                <option value="recordatorio">📌 Recordatorio General</option>
-                            </select>
+                        <div class="form-grid" style="grid-column: 1/-1; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
+                            <div class="form-group">
+                                <label for="fecha-nota">Fecha del Evento</label>
+                                <input type="date" id="fecha-nota" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="asesor-nota">Registrado Por</label>
+                                <select id="asesor-nota" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="Daniela">Daniela</option>
+                                    <option value="Danesi">Danesi</option>
+                                    <option value="José">José</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="categoria-nota">Categoría de Novedad</label>
+                                <select id="categoria-nota" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="infraestructura">🔌 Servicios / Infraestructura</option>
+                                    <option value="administracion">💵 Operación / Administración</option>
+                                    <option value="mensajeria">📦 Mensajería / Proveedores</option>
+                                    <option value="recordatorio">📌 Recordatorio General</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="form-group full-width">
@@ -793,7 +801,8 @@
                             <label for="fijar-nota-chk" style="margin-bottom: 0; cursor: pointer; color: var(--notes-color)"><b>📌 Fijar esta anotación como un aviso importante en la cabecera del sistema</b></label>
                         </div>
 
-                        <button type="submit" class="btn-submit btn-notes">Guardar Nota en la Bitácora</button>
+                        <button type="button" id="btn-submit-notas" class="btn-submit btn-notes" onclick="procesarEnvioNota()">Guardar Nota en la Bitácora</button>
+                        <button type="button" id="btn-cancelar-nota-edicion" class="btn-accion-secundario" style="display:none; margin-top:10px;" onclick="cancelarEdicionNota()">Cancelar Edición</button>
                     </div>
                 </form>
             </div>
@@ -831,7 +840,7 @@
                                 <th style="width: 110px;">Asesor</th>
                                 <th style="width: 150px;">Categoría</th>
                                 <th>Novedad / Reporte Registrado</th>
-                                <th style="width: 80px;">Acción</th>
+                                <th style="width: 150px;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="notes-table-body">
@@ -846,16 +855,54 @@
     </div>
 
     <script>
+        // --- CONFIGURACIÓN DE FIREBASE ---
+        const FIREBASE_BASE_URL = "https://viajes-perera-portal-default-rtdb.firebaseio.com/";
+
         document.getElementById('fecha').valueAsDate = new Date();
         document.getElementById('fecha-nota').valueAsDate = new Date();
         
-        let listaRegistros = JSON.parse(localStorage.getItem("OficinaPradoRegistros")) || [];
-        let listaNotas = JSON.parse(localStorage.getItem("OficinaPradoNotasInternas")) || [];
-        let contadorAcompanantes = 0; // Indexador único para los bloques dinámicos
+        let listaRegistros = [];
+        let listaNotas = [];
+        let cotizacionesContactadas = {};
+        let contadorAcompanantes = 0; 
 
-        actualizarVistas();
-        renderTablaNotas(listaNotas);
-        verificarAvisoFijado();
+        cargarDatosDesdeFirebase();
+
+        async function cargarDatosDesdeFirebase() {
+            const respaldoLocalPasajeros = localStorage.getItem("backup_pasajeros");
+            const respaldoLocalNotas = localStorage.getItem("backup_notas");
+            
+            if(respaldoLocalPasajeros) listaRegistros = JSON.parse(respaldoLocalPasajeros);
+            if(respaldoLocalNotas) listaNotas = JSON.parse(respaldoLocalNotas);
+            
+            actualizarVistas();
+            renderTablaNotas(listaNotas);
+
+            try {
+                const resReg = await fetch(FIREBASE_BASE_URL + "ventas.json");
+                if(resReg.ok) {
+                    const dataReg = await resReg.json();
+                    listaRegistros = dataReg ? Object.keys(dataReg).map(key => ({ ...dataReg[key], firebaseKey: key })) : [];
+                    localStorage.setItem("backup_pasajeros", JSON.stringify(listaRegistros));
+                }
+
+                const resNotas = await fetch(FIREBASE_BASE_URL + "meta.json");
+                if(resNotas.ok) {
+                    const dataNotas = await resNotas.json();
+                    listaNotas = dataNotas ? Object.keys(dataNotas).map(key => ({ ...dataNotas[key], firebaseKey: key })) : [];
+                    localStorage.setItem("backup_notas", JSON.stringify(listaNotas));
+                }
+
+                const resClips = await fetch(FIREBASE_BASE_URL + "cotizaciones_clips.json");
+                if(resClips.ok) cotizacionesContactadas = await resClips.json() || {};
+
+                actualizarVistas();
+                renderTablaNotas(listaNotas);
+                verificarAvisoFijado();
+            } catch (error) {
+                console.warn("Trabajando con base local desconectada.");
+            }
+        }
 
         function verificarCamposDinamicos() {
             const tipoActividad = document.getElementById('tipo').value;
@@ -866,6 +913,9 @@
             const inCedula = document.getElementById('cedula-cliente');
             const inPago = document.getElementById('forma-pago');
             const inMonto = document.getElementById('monto-venta');
+            
+            const inCorreo = document.getElementById('correo-cliente');
+            const estrellaCorreo = document.getElementById('email-required-star');
 
             if (tipoActividad === 'venta') {
                 conCedula.style.display = 'flex';
@@ -874,6 +924,20 @@
                 inCedula.required = true;
                 inPago.required = true;
                 inMonto.required = true;
+                inCorreo.required = true;
+                estrellaCorreo.style.display = 'inline';
+            } else if (tipoActividad === 'cotizacion') {
+                conCedula.style.display = 'none';
+                conPago.style.display = 'none';
+                conMonto.style.display = 'none';
+                inCedula.required = false;
+                inPago.required = false;
+                inMonto.required = false;
+                inCedula.value = ""; 
+                inPago.value = "";
+                inMonto.value = "";
+                inCorreo.required = false;
+                estrellaCorreo.style.display = 'none';
             } else {
                 conCedula.style.display = 'none';
                 conPago.style.display = 'none';
@@ -884,10 +948,11 @@
                 inCedula.value = ""; 
                 inPago.value = "";
                 inMonto.value = "";
+                inCorreo.required = true;
+                estrellaCorreo.style.display = 'inline';
             }
         }
 
-        // Muestra u oculta la sección multi-acompañante
         function toggleAcompanantes() {
             const checkbox = document.getElementById("viajaAcompanado");
             const contenedor = document.getElementById("contenedorAcompanantes");
@@ -895,21 +960,18 @@
 
             if (checkbox.checked) {
                 contenedor.style.display = "block";
-                // Iniciar automáticamente con un bloque de acompañante si se marca la casilla
                 if(lista.children.length === 0) {
                     agregarBloqueAcompanante();
                 }
             } else {
                 contenedor.style.display = "none";
-                lista.innerHTML = ""; // Vacía todos los bloques cargados
+                lista.innerHTML = ""; 
             }
         }
 
-        // NUEVA FUNCIÓN: Agrega un set completo de campos para un nuevo acompañante de forma infinita
         function agregarBloqueAcompanante() {
             contadorAcompanantes++;
             const lista = document.getElementById("lista-bloques-acomp");
-            
             const divBloque = document.createElement("div");
             divBloque.className = "bloque-acompanante";
             divBloque.id = `bloque-acomp-${contadorAcompanantes}`;
@@ -941,12 +1003,9 @@
             lista.appendChild(divBloque);
         }
 
-        // Remueve un bloque de acompañante específico de la pantalla
         function eliminarBloqueAcompanante(idBloque) {
             const bloque = document.getElementById(`bloque-acomp-${idBloque}`);
             if(bloque) bloque.remove();
-            
-            // Si quitaron todos los bloques, desmarcar la casilla general
             const lista = document.getElementById("lista-bloques-acomp");
             if(lista.children.length === 0) {
                 document.getElementById("viajaAcompanado").checked = false;
@@ -965,10 +1024,15 @@
             if (tabId === 'bitacora-oficina') botones[2].classList.add('active');
         }
 
-        // CONTROL DE REGISTRO MODIFICADO MULTI-PASAJERO
-        const form = document.getElementById('main-form');
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
+        async function procesarEnvioFormulario() {
+            const formElement = document.getElementById('main-form');
+            if (!formElement.checkValidity()) {
+                formElement.reportValidity();
+                return;
+            }
+
+            const idEdicion = document.getElementById('cliente-id-edicion').value;
+            const keyEdicion = document.getElementById('cliente-key-edicion').value;
 
             const checkboxes = document.querySelectorAll('input[name="producto-chk"]:checked');
             const serviciosSeleccionados = [];
@@ -979,15 +1043,11 @@
                 return;
             }
 
-            // Identificador de grupo basado en milisegundos para amarrar la familia entera
-            const timestampGrupo = new Date().getTime();
-            const montoCargado = parseFloat(document.getElementById('monto-venta').value) || 0;
-            
-            // 1. Guardar Titular
-            const nuevoTitular = {
-                id: timestampGrupo, 
+            const valorMontoInput = document.getElementById('monto-venta').value;
+            const montoCargado = valorMontoInput ? parseFloat(valorMontoInput) : 0;
+
+            const datosCliente = {
                 fecha: document.getElementById('fecha').value,
-                asesor: document.getElementById('asesor').value,
                 tipo: document.getElementById('tipo').value,
                 producto: serviciosSeleccionados.join(', '), 
                 destino: document.getElementById('destino').value.trim(),
@@ -996,75 +1056,169 @@
                 formaPago: document.getElementById('forma-pago').value || "N/A",
                 monto: montoCargado, 
                 telefono: document.getElementById('telefono-cliente').value.trim(),
-                correo: document.getElementById('correo-cliente').value.trim(),
+                correo: document.getElementById('correo-cliente').value.trim() || "No entregado",
                 detalles: document.getElementById('detalles').value.trim(),
                 tipoPasajero: "Titular",
                 parentesco: "-"
             };
 
-            listaRegistros.push(nuevoTitular);
+            if (idEdicion) {
+                datosCliente.id = parseInt(idEdicion);
 
-            // 2. Procesar e inyectar cada acompañante cargado dinámicamente
-            const chkAcomp = document.getElementById("viajaAcompanado").checked;
-            if (chkAcomp) {
-                const bloques = document.querySelectorAll(".bloque-acompanante");
-                bloques.forEach(bloque => {
-                    const nombreAcomp = bloque.querySelector(".acomp-input-nombre").value.trim();
-                    const cedulaAcomp = bloque.querySelector(".acomp-input-cedula").value.trim();
-                    const parentescoAcomp = bloque.querySelector(".acomp-input-parentesco").value;
+                listaRegistros = listaRegistros.map(r => r.id === parseInt(idEdicion) && r.tipoPasajero === "Titular" ? { ...r, ...datosCliente } : r);
+                localStorage.setItem("backup_pasajeros", JSON.stringify(listaRegistros));
+                actualizarVistas();
+                cancelarEdicionCliente();
+                alert("¡Ficha del cliente actualizada!");
 
-                    if(nombreAcomp && cedulaAcomp) {
-                        const nuevoAcompanante = {
-                            id: timestampGrupo, // Mismo ID de grupo familiar para agruparlos
-                            fecha: document.getElementById('fecha').value,
-                            asesor: document.getElementById('asesor').value,
-                            tipo: document.getElementById('tipo').value,
-                            producto: serviciosSeleccionados.join(', '), 
-                            destino: document.getElementById('destino').value.trim(),
-                            nombre: nombreAcomp,
-                            cedula: cedulaAcomp,
-                            formaPago: "N/A",
-                            monto: 0,
-                            telefono: document.getElementById('telefono-cliente').value.trim(), // Heredado
-                            correo: document.getElementById('correo-cliente').value.trim(),
-                            detalles: `[Acompañante de ${nuevoTitular.nombre}] — ` + document.getElementById('detalles').value.trim(),
-                            tipoPasajero: "Acompañante",
-                            parentesco: parentescoAcomp
-                        };
-                        listaRegistros.push(nuevoAcompanante);
+                try {
+                    if (keyEdicion && keyEdicion !== "undefined" && keyEdicion !== "") {
+                        await fetch(FIREBASE_BASE_URL + `ventas/${keyEdicion}.json`, {
+                            method: "PATCH",
+                            body: JSON.stringify(datosCliente)
+                        });
                     }
-                });
+                    cargarDatosDesdeFirebase();
+                } catch (error) {
+                    console.warn("Respaldo local completado.");
+                }
+
+            } else {
+                const timestampGrupo = new Date().getTime();
+                datosCliente.id = timestampGrupo;
+                listaRegistros.push(datosCliente);
+
+                const chkAcomp = document.getElementById("viajaAcompanado").checked;
+                if (chkAcomp) {
+                    const bloques = document.querySelectorAll(".bloque-acompanante");
+                    for (const bloque of bloques) {
+                        const nombreAcomp = bloque.querySelector(".acomp-input-nombre").value.trim();
+                        const cedulaAcomp = bloque.querySelector(".acomp-input-cedula").value.trim();
+                        const parentescoAcomp = bloque.querySelector(".acomp-input-parentesco").value;
+
+                        if(nombreAcomp && cedulaAcomp) {
+                            const nuevoAcompanante = {
+                                id: timestampGrupo, 
+                                fecha: datosCliente.fecha,
+                                tipo: datosCliente.tipo,
+                                producto: datosCliente.producto, 
+                                destino: datosCliente.destino,
+                                nombre: nombreAcomp,
+                                cedula: cedulaAcomp,
+                                formaPago: "N/A",
+                                monto: 0,
+                                telefono: datosCliente.telefono, 
+                                correo: datosCliente.correo,
+                                detalles: `[Acompañante de ${datosCliente.nombre}] — ` + datosCliente.detalles,
+                                tipoPasajero: "Acompañante",
+                                parentesco: parentescoAcomp
+                            };
+                            listaRegistros.push(nuevoAcompanante);
+                            fetch(FIREBASE_BASE_URL + "ventas.json", { method: "POST", body: JSON.stringify(nuevoAcompanante) }).catch(() => {});
+                        }
+                    }
+                }
+
+                localStorage.setItem("backup_pasajeros", JSON.stringify(listaRegistros));
+                actualizarVistas();
+                alert("¡Pasajero registrado con éxito!");
+
+                limpiarFormulario();
+                verificarCamposDinamicos(); 
+                document.getElementById("viajaAcompanado").checked = false;
+                toggleAcompanantes();
+
+                try {
+                    await fetch(FIREBASE_BASE_URL + "ventas.json", {
+                        method: "POST",
+                        body: JSON.stringify(datosCliente)
+                    });
+                    cargarDatosDesdeFirebase();
+                } catch (error) {
+                    console.warn("Sincronización en la cola de red.");
+                }
             }
-
-            localStorage.setItem("OficinaPradoRegistros", JSON.stringify(listaRegistros));
-
-            actualizarVistas();
-            limpiarFormulario();
-            verificarCamposDinamicos(); 
-            document.getElementById("viajaAcompanado").checked = false;
-            toggleAcompanantes();
-            alert("¡Todo el grupo de pasajeros ha sido registrado y agrupado con éxito!");
-        });
-
-        function limpiarFormulario() {
-            document.getElementById('tipo').value = "";
-            document.getElementById('destino').value = "";
-            document.getElementById('nombre-cliente').value = "";
-            document.getElementById('cedula-cliente').value = "";
-            document.getElementById('forma-pago').value = "";
-            document.getElementById('monto-venta').value = "";
-            document.getElementById('telefono-cliente').value = "";
-            document.getElementById('correo-cliente').value = "";
-            document.getElementById('detalles').value = "";
-            document.querySelectorAll('input[name="producto-chk"]').forEach(chk => chk.checked = false);
         }
 
-        // Elimina al grupo familiar completo buscando por ID de vínculo común
-        function eliminarRegistro(id) {
-            if (confirm("¿Están seguros de eliminar este registro? Al ser un grupo amarrado, se borrarán el titular y todos sus acompañantes asociados.")) {
-                listaRegistros = listaRegistros.filter(item => item.id !== id);
-                localStorage.setItem("OficinaPradoRegistros", JSON.stringify(listaRegistros));
-                actualizarVistas();
+        function cargarClienteParaEditar(idNumerico, firebaseKey) {
+            const cliente = listaRegistros.find(r => r.id === idNumerico && r.tipoPasajero === "Titular");
+            if (!cliente) {
+                alert("Por políticas de orden del sistema, para editar un grupo familiar debe editar directamente la ficha del Pasajero Titular.");
+                return;
+            }
+
+            document.getElementById('cliente-id-edicion').value = idNumerico;
+            document.getElementById('cliente-key-edicion').value = firebaseKey || "";
+
+            document.getElementById('fecha').value = cliente.fecha;
+            document.getElementById('tipo').value = cliente.tipo;
+            document.getElementById('destino').value = cliente.destino;
+            document.getElementById('nombre-cliente').value = cliente.nombre;
+            
+            verificarCamposDinamicos(); 
+
+            document.getElementById('cedula-cliente').value = cliente.cedula !== "N/A" ? cliente.cedula : "";
+            document.getElementById('forma-pago').value = cliente.formaPago !== "N/A" ? cliente.formaPago : "";
+            document.getElementById('monto-venta').value = cliente.monto > 0 ? cliente.monto : "";
+            document.getElementById('telefono-cliente').value = cliente.telefono;
+            document.getElementById('correo-cliente').value = cliente.correo !== "No entregado" ? cliente.correo : "";
+            document.getElementById('detalles').value = cliente.detalles;
+
+            document.querySelectorAll('input[name="producto-chk"]').forEach(chk => {
+                chk.checked = cliente.producto.includes(chk.value);
+            });
+
+            document.getElementById('wrapper-acomp-checkbox').style.display = "none";
+            document.getElementById('contenedorAcompanantes').style.display = "none";
+
+            document.getElementById('titulo-formulario-clientes').innerText = `✏️ Modificando Ficha de: ${cliente.nombre}`;
+            const btnSubmit = document.getElementById('btn-submit-cliente');
+            btnSubmit.innerText = "Actualizar Cambios del Cliente";
+            btnSubmit.style.backgroundColor = "var(--warning-color)";
+            document.getElementById('btn-cancelar-cliente-edicion').style.display = "inline-block";
+
+            switchTab('registro-diario');
+            document.getElementById('main-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelarEdicionCliente() {
+            document.getElementById('cliente-id-edicion').value = "";
+            document.getElementById('cliente-key-edicion').value = "";
+            limpiarFormulario();
+            verificarCamposDinamicos();
+            
+            document.getElementById('wrapper-acomp-checkbox').style.display = "flex";
+            document.getElementById('titulo-formulario-clientes').innerText = "Registrar Actividad e Información del Cliente";
+            
+            const btnSubmit = document.getElementById('btn-submit-cliente');
+            btnSubmit.innerText = "Guardar en Base de Datos y Reporte";
+            btnSubmit.style.backgroundColor = "var(--accent-color)";
+            document.getElementById('btn-cancelar-cliente-edicion').style.display = "none";
+        }
+
+        async function eliminarRegistro(idNumerico, firebaseKey) {
+            if (confirm("¿Están completamente seguros de eliminar este registro? Al borrarlo, se limpiará el titular y todos los acompañantes de ese mismo grupo familiar de forma definitiva.")) {
+                
+                try {
+                    const registrosABorrar = listaRegistros.filter(item => item.id === idNumerico);
+                    
+                    for (const registro of registrosABorrar) {
+                        if (registro.firebaseKey && registro.firebaseKey !== "undefined" && registro.firebaseKey !== "") {
+                            await fetch(FIREBASE_BASE_URL + `ventas/${registro.firebaseKey}.json`, { method: "DELETE" });
+                        }
+                    }
+
+                    listaRegistros = listaRegistros.filter(item => item.id !== idNumerico);
+                    localStorage.setItem("backup_pasajeros", JSON.stringify(listaRegistros));
+                    
+                    alert("¡Registro eliminado correctamente del servidor y las tablas!");
+                    await cargarDatosDesdeFirebase();
+                } catch (error) {
+                    listaRegistros = listaRegistros.filter(item => item.id !== idNumerico);
+                    localStorage.setItem("backup_pasajeros", JSON.stringify(listaRegistros));
+                    actualizarVistas();
+                    alert("Eliminado de las tablas locales (La nube está desconectada).");
+                }
             }
         }
 
@@ -1074,18 +1228,17 @@
         }
 
         function actualizarEstadisticas(registrosAContar, metodoFiltrado = "") {
-            const fechaHoyString = new Date().toISOString().split('T')[0];
             let ventasHoy = 0, cotizacionesHoy = 0, visitasHoy = 0;
 
             listaRegistros.forEach(item => {
-                if (item.fecha === fechaHoyString && item.tipoPasajero === "Titular") {
+                if (item.tipoPasajero === "Titular") {
                     if (item.tipo === 'venta') ventasHoy++;
                     if (item.tipo === 'cotizacion') cotizacionesHoy++;
                     if (item.tipo === 'visita') visitasHoy++;
                 }
             });
 
-            document.getElementById('count-ventas').innerText = `${ventasHoy} ${ventasHoy === 1 ? 'Venta' : 'Ventas'}`;
+            document.getElementById('count-ventas').innerText = `${ventasHoy} Ventas`;
             document.getElementById('count-cotizaciones').innerText = cotizacionesHoy;
             document.getElementById('count-visitas').innerText = visitasHoy;
 
@@ -1106,124 +1259,84 @@
 
         function renderTablaHoy() {
             const tbody = document.getElementById('hoy-table-body');
-            const fechaHoyString = new Date().toISOString().split('T')[0];
-            const deHoy = listaRegistros.filter(item => item.fecha === fechaHoyString);
 
-            if (deHoy.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="no-data">No se han registrado movimientos hoy.</td></tr>`;
+            if (listaRegistros.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="no-data">No hay movimientos registrados en el sistema.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = "";
-            [...deHoy].reverse().forEach(item => {
+            [...listaRegistros].reverse().forEach(item => {
                 const fila = document.createElement('tr');
-                const fFormateada = item.fecha.split('-').reverse().join('/');
+                const fFormateada = item.fecha ? item.fecha.split('-').reverse().join('/') : 'S/F';
                 const tipoTxt = item.tipo === 'venta' ? 'Venta' : item.tipo === 'cotizacion' ? 'Cotización' : 'Visita';
                 
-                const textoMonto = item.monto && item.monto > 0 ? ` <span style="color:#16a34a; font-weight:bold;">($${item.monto.toLocaleString('en-US', {minimumFractionDigits:2})})</span>` : '';
+                const textoMonto = item.monto && item.monto > 0 ? ` <span style="color:#16a34a; font-weight:bold;">($${parseFloat(item.monto).toLocaleString('en-US', {minimumFractionDigits:2})})</span>` : '';
                 const textoCedula = item.cedula && item.cedula !== "N/A" ? ` <small style="color:#6d28d9; font-weight:bold;">(${item.cedula})</small>` : '';
                 
                 const badgePasajero = item.tipoPasajero === "Titular" 
                     ? `<span class="badge titular">Titular</span>` 
-                    : `<span class="badge acompañante">Acomp. (${item.parentesco})</span>`;
+                    : `<span class="badge acompañante">Acomp. (${item.parentesco || 'Relación'})</span>`;
 
                 fila.innerHTML = `
                     <td><strong>${fFormateada}</strong></td>
-                    <td>${item.asesor}</td>
                     <td class="client-name">
-                        ${item.nombre}${textoCedula}${textoMonto}<br>
+                        ${item.nombre || 'Sin Nombre'}${textoCedula}${textoMonto}<br>
                         ${badgePasajero}
                     </td>
-                    <td><small>📦 ${item.producto}<br>📍 ${item.destino}</small></td>
-                    <td><span class="badge ${item.tipo}">${tipoTxt}</span></td>
-                    <td>${item.detalles}</td>
+                    <td><small>📦 ${item.producto || 'Varios'}<br>📍 ${item.destino || 'No Indicado'}</small></td>
+                    <td><span class="badge ${item.tipo || 'cotizacion'}">${tipoTxt}</span></td>
+                    <td>${item.detalles || ''}</td>
                 `;
                 tbody.appendChild(fila);
             });
-        }
-
-        function calcularAlertaSeguimiento(fechaRegistroString, tipoActividad) {
-            if (tipoActividad === 'venta') return '<span class="status-pill ok">Al Día ✅</span>';
-
-            const fechaRegistro = new Date(fechaRegistroString + 'T00:00:00');
-            const fechaActual = new Date();
-            const diferenciaTiempo = fechaActual - fechaRegistro;
-            const diferenciaDias = diferenciaTiempo / (1000 * 60 * 60 * 24);
-
-            if (diferenciaDias > 3) {
-                return '<span class="status-pill danger">Urgente 🚨 (+72h)</span>';
-            } else if (diferenciaDias > 2) {
-                return '<span class="status-pill alert">Seguimiento ⚠️ (+48h)</span>';
-            }
-            return '<span class="status-pill ok">Reciente 👍</span>';
-        }
-
-        function filtrarBaseDatos() {
-            const busqueda = document.getElementById('search-db').value.toLowerCase().trim();
-            const filtroPago = document.getElementById('filter-pago').value;
-
-            let filtrados = listaRegistros;
-
-            if (filtroPago !== "") {
-                filtrados = filtrados.filter(item => item.formaPago === filtroPago);
-            }
-
-            if (busqueda !== "") {
-                filtrados = filtrados.filter(item => {
-                    return item.nombre.toLowerCase().includes(busqueda) || 
-                           item.cedula.toLowerCase().includes(busqueda) ||
-                           item.destino.toLowerCase().includes(busqueda) ||
-                           item.producto.toLowerCase().includes(busqueda) ||
-                           item.telefono.includes(busqueda) || 
-                           item.correo.toLowerCase().includes(busqueda) || 
-                           item.asesor.toLowerCase().includes(busqueda) || 
-                           item.tipoPasajero.toLowerCase().includes(busqueda) ||
-                           item.detalles.toLowerCase().includes(busqueda);
-                });
-            }
-
-            actualizarEstadisticas(filtrados, filtroPago);
-            renderTablaBaseDatos(filtrados);
         }
 
         function renderTablaBaseDatos(registrosAMostrar) {
             const tbody = document.getElementById('db-table-body');
 
             if (registrosAMostrar.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="no-data">No se encontraron registros con este filtro.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="no-data">No se encontraron registros en la Base de Datos.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = "";
-            
-            // Ordenar para mantener agrupados a los miembros de un mismo ID familiar juntos
             let registrosOrdenados = [...registrosAMostrar].sort((a, b) => b.id - a.id);
 
             registrosOrdenados.forEach(item => {
                 const fila = document.createElement('tr');
-                const fFormateada = item.fecha.split('-').reverse().join('/');
+                const fFormateada = item.fecha ? item.fecha.split('-').reverse().join('/') : 'S/F';
                 const tipoTxt = item.tipo === 'venta' ? 'Venta' : item.tipo === 'cotizacion' ? 'Cotización' : 'Visita';
-                const controlPill = calcularAlertaSeguimiento(item.fecha, item.tipo);
+                const controlPill = calcularAlertaSeguimiento(item.id, item.fecha, item.tipo);
 
                 const bloqueCedula = item.cedula && item.cedula !== "N/A" ? `<span class="client-id-card">CI: ${item.cedula}</span>` : '';
                 const bloquePago = item.formaPago && item.formaPago !== "N/A" ? `<span class="client-payment-card">💳 ${item.formaPago}</span>` : '';
-                const bloqueMonto = item.monto && item.monto > 0 ? `<span class="client-amount-card">💵 $${item.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>` : '';
+                const bloqueMonto = item.monto && item.monto > 0 ? `<span class="client-amount-card">💵 $${parseFloat(item.monto).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>` : '';
                 
                 const badgePasajero = item.tipoPasajero === "Titular" 
                     ? `<span class="badge titular" style="margin-top:4px;">Titular</span>` 
-                    : `<span class="badge acompanante" style="margin-top:4px;">Acomp. (${item.parentesco})</span>`;
+                    : `<span class="badge acompanante" style="margin-top:4px;">Acomp. (${item.parentesco || 'Relación'})</span>`;
 
-                // Un sombreado muy sutil para alternar bloques de familias en la visualización agrupada
                 if (item.id % 2 === 0) {
                     fila.style.backgroundColor = "rgba(0, 70, 173, 0.02)";
                 }
 
+                let fontColor = "";
+                let botonTransformar = "";
+                if (item.tipo === "cotizacion" && item.tipoPasajero === "Titular") {
+                    botonTransformar = `<button class="btn-export" style="background:#16a34a; padding:5px 8px; font-size:11px; margin-right:4px;" onclick="transformacionExpress('${item.firebaseKey}', '${item.nombre}', ${item.id})">✓ Compró</button>`;
+                }
+
+                let botonEditar = item.tipoPasajero === "Titular" 
+                    ? `<button class="btn-export" style="background:#ea580c; padding:5px 8px; font-size:11px; margin-right:4px;" onclick="cargarClienteParaEditar(${item.id}, '${item.firebaseKey}')">✏️ Editar</button>` 
+                    : '';
+
                 fila.innerHTML = `
-                    <td><code>#G-${item.id.toString().slice(-6)}</code></td>
+                    <td><code>#G-${item.id ? item.id.toString().slice(-6) : '000000'}</code></td>
                     <td>${controlPill}</td>
                     <td>${fFormateada}</td>
                     <td class="client-name">
-                        {nombre_placeholder}
+                        ${item.nombre || 'Sin Nombre'}
                         <div class="client-meta-box">
                             ${bloqueCedula}
                             ${badgePasajero}
@@ -1231,178 +1344,242 @@
                             ${bloqueMonto}
                         </div>
                     </td>
-                    <td class="contact-info">📞 ${item.telefono}<br>✉️ ${item.correo}</td>
-                    <td>${item.asesor}</td>
-                    <td><span class="badge ${item.tipo}">${tipoTxt}</span><br><small style="color:#64748b;">${item.producto} ➔ <b>${item.destino}</b></small></td>
-                    <td>${item.detalles}</td>
-                    <td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">🗑️ Borrar Fam.</button></td>
-                `.replace('{nombre_placeholder}', item.nombre);
+                    <td class="contact-info">📞 ${item.telefono || 'N/I'}<br>✉️ ${item.correo || 'N/I'}</td>
+                    <td><span class="badge ${item.tipo || 'cotizacion'}">${tipoTxt}</span><br><small style="color:#64748b;">${item.producto || ''} ➔ <b>${item.destino || ''}</b></small></td>
+                    <td>${item.detalles || ''}</td>
+                    <td>
+                        <div style="display:flex; flex-direction:row; align-items:center;">
+                            ${botonTransformar}
+                            ${botonEditar}
+                            <button class="btn-delete" onclick="eliminarRegistro(${item.id}, '${item.firebaseKey}')">🗑️ Borrar</button>
+                        </div>
+                    </td>
+                `;
                 tbody.appendChild(fila);
             });
         }
 
-        function exportarExcelCSV() {
-            if (listaRegistros.length === 0) {
-                alert("No hay datos para exportar.");
-                return;
+        async function transformacionExpress(firebaseKey, nombreCliente, idNumerico) {
+            const confirmacion = confirm(`¿El cliente "${nombreCliente}" realizó la compra definitiva? Presione Aceptar para rellenar los datos de facturación.`);
+            if (!confirmacion) return;
+
+            const cedulaInput = prompt("Ingrese la Cédula de Identidad del Cliente:", "V-");
+            if (!cedulaInput) { alert("Operación cancelada. La cédula es requerida."); return; }
+
+            const montoInput = prompt("Ingrese el Monto Total Cobrado ($):", "0.00");
+            if (!montoInput || isNaN(montoInput)) { alert("Operación cancelada. El monto debe ser un número válido."); return; }
+
+            const formaPagoInput = prompt("Ingrese el Método de Pago (Zelle, Efectivo ($), Efectivo (Bs), Pago Móvil, Transferencia):", "Zelle");
+            if (!formaPagoInput) { alert("Operación cancelada. El método de pago es requerido."); return; }
+
+            const registroObjetivo = listaRegistros.find(r => r.id === idNumerico);
+            const detallesViejos = registroObjetivo ? registroObjetivo.detalles : "";
+
+            const actualizaciones = {
+                tipo: "venta",
+                cedula: cedulaInput.trim(),
+                monto: parseFloat(montoInput),
+                formaPago: formaPagoInput.trim(),
+                detalles: `[Cerrado a Venta Realizada desde Tabla] — ` + detallesViejos
+            };
+
+            listaRegistros = listaRegistros.map(r => r.id === idNumerico ? { ...r, ...actualizaciones } : r);
+            localStorage.setItem("backup_pasajeros", JSON.stringify(listaRegistros));
+            actualizarVistas();
+
+            try {
+                let llaveNube = firebaseKey;
+                
+                if (!llaveNube || llaveNube === "undefined" || llaveNube === "") {
+                    const resBusqueda = await fetch(FIREBASE_BASE_URL + `ventas.json`);
+                    const dataBusqueda = await resBusqueda.json();
+                    if(dataBusqueda) {
+                        llaveNube = Object.keys(dataBusqueda).find(k => dataBusqueda[k].id === idNumerico);
+                    }
+                }
+
+                if (llaveNube) {
+                    await fetch(FIREBASE_BASE_URL + `ventas/${llaveNube}.json`, {
+                        method: "PATCH",
+                        body: JSON.stringify(updates)
+                    });
+                }
+                
+                const resReg = await fetch(FIREBASE_BASE_URL + "ventas.json");
+                if(resReg.ok) {
+                    const dataReg = await resReg.json();
+                    listaRegistros = dataReg ? Object.keys(dataReg).map(key => ({ ...dataReg[key], firebaseKey: key })) : [];
+                    localStorage.setItem("backup_pasajeros", JSON.stringify(listaRegistros));
+                }
+                actualizarVistas();
+                alert("¡Cotización transformada en Venta con éxito!");
+            } catch (error) {
+                console.warn("Actualizado localmente.");
             }
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "ID Grupo;Fecha;Pasajero;Cedula;Tipo Pasajero;Parentesco;Metodo Pago;Monto Venta $;Telefono;Correo;Asesor;Tipo Actividad;Producto;Destino;Detalles\n";
+        }
 
-            // Se exporta ordenado por ID de grupo familiar para que en Excel salgan juntos
-            let registrosExportar = [...listaRegistros].sort((a, b) => b.id - a.id);
+        function calcularAlertaSeguimiento(idRegistro, fechaRegistroString, tipoActividad) {
+            if (tipoActividad === 'venta') return '<span class="status-pill ok">Al Día ✅</span>';
+            if (cotizacionesContactadas[idRegistro]) return `<span class="status-pill contacted" onclick="toggleContactoClip('${idRegistro}')"><i class="fas fa-check-double"></i> Ya Contactado</span>`;
 
-            registrosExportar.forEach(item => {
-                const fFormateada = item.fecha.split('-').reverse().join('/');
-                const tipoTxt = item.tipo === 'venta' ? 'Venta' : item.tipo === 'cotizacion' ? 'Cotización' : 'Visita';
-                const productoLimpio = item.producto.replace(/,/g, ' -');
-                const nombreLimpio = item.nombre.replace(/;/g, ',');
-                const detallesLimpios = item.detalles.replace(/;/g, ',').replace(/\n/g, ' ');
-                const destinoLimpio = item.destino.replace(/;/g, ',');
+            const fechaRegistro = new Date(fechaRegistroString + 'T00:00:00');
+            const fechaActual = new Date();
+            const diferenciaDias = (fechaActual - fechaRegistro) / (1000 * 60 * 60 * 24);
 
-                csvContent += `${item.id};${fFormateada};${nombreLimpio};${item.cedula};${item.tipoPasajero};${item.parentesco};${item.formaPago};${item.monto || 0};${item.telefono};${item.correo};${item.asesor};${tipoTxt};${productoLimpio};${destinoLimpio};${detallesLimpios}\n`;
+            if (diferenciaDias > 3) return `<span class="status-pill danger" onclick="toggleContactoClip('${idRegistro}')" title="Marcar como contactado"><i class="fas fa-paperclip"></i> Urgente 🚨 (+72h)</span>`;
+            if (diferenciaDias > 2) return `<span class="status-pill alert" onclick="toggleContactoClip('${idRegistro}')" title="Marcar como contactado"><i class="fas fa-paperclip"></i> Seguimiento ⚠️ (+48h)</span>`;
+            return `<span class="status-pill ok" onclick="toggleContactoClip('${idRegistro}')" title="Marcar como contactado"><i class="fas fa-paperclip"></i> Reciente 👍</span>`;
+        }
+
+        async function toggleContactoClip(idRegistro) {
+            cotizacionesContactadas[idRegistro] = !cotizacionesContactadas[idRegistro];
+            if (!cotizacionesContactadas[idRegistro]) delete cotizacionesContactadas[idRegistro];
+            try {
+                await fetch(FIREBASE_BASE_URL + "cotizaciones_clips.json", { method: "PUT", body: JSON.stringify(cotizacionesContactadas) });
+                filtrarBaseDatos();
+            } catch (error) { console.error(error); }
+        }
+
+        function filtrarBaseDatos() {
+            const busqueda = document.getElementById('search-db').value.toLowerCase().trim();
+            const filterPagoSelect = document.getElementById('filter-pago').value;
+            let filtrados = listaRegistros;
+
+            if (filterPagoSelect !== "") filtrados = filtrados.filter(item => item.formaPago === filterPagoSelect);
+            if (busqueda !== "") {
+                filtrados = filtrados.filter(item => 
+                    (item.nombre && item.nombre.toLowerCase().includes(busqueda)) || 
+                    (item.cedula && item.cedula.toLowerCase().includes(busqueda)) ||
+                    (item.destino && item.destino.toLowerCase().includes(busqueda)) ||
+                    (item.producto && item.producto.toLowerCase().includes(busqueda)) ||
+                    (item.tipoPasajero && item.tipoPasajero.toLowerCase().includes(busqueda))
+                );
+            }
+            actualizarEstadisticas(filtrados, filterPagoSelect);
+            renderTablaBaseDatos(filtrados);
+        }
+
+        function exportarExcelCSV() {
+            if (listaRegistros.length === 0) { alert("No hay datos."); return; }
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFFID Grupo;Fecha;Pasajero;Cedula;Tipo Pasajero;Parentesco;Metodo Pago;Monto Venta $;Telefono;Correo;Tipo Actividad;Producto;Destino;Detalles\n";
+            [...listaRegistros].sort((a, b) => b.id - a.id).forEach(item => {
+                csvContent += `${item.id || ''};${item.fecha};${item.nombre || ''};${item.cedula || 'N/A'};${item.tipoPasajero || ''};${item.parentesco || ''};${item.formaPago || 'N/A'};${item.monto || 0};${item.telefono || ''};${item.correo || ''};${item.tipo || ''};${item.producto || ''};${item.destino || ''};${item.detalles ? item.detalles.replace(/\n/g, ' ') : ''}\n`;
             });
-
-            const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
-            const fechaArchivo = new Date().toISOString().split('T')[0];
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Base_Pasajeros_PradosDelEste_${fechaArchivo}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `Base_Pasajeros_PradosDelEste.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
         // ==========================================
-        //  MODULO DE LA BITÁCORA INTERNA
+        //  MODULO BITÁCORA INTERNA (CRUD COMPLETO)
         // ==========================================
-        const notesForm = document.getElementById('notes-form');
-        notesForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const proximaNotaId = listaNotas.length > 0 ? listaNotas[listaNotas.length - 1].id + 1 : 1;
+        async function procesarEnvioNota() {
+            const keyEdicion = document.getElementById('nota-id-edicion').value;
             const checkFijar = document.getElementById('fijar-nota-chk').checked;
 
-            if (checkFijar) {
-                listaNotas.forEach(nota => nota.fijada = false);
-            }
+            if (checkFijar) listaNotas.forEach(nota => nota.fijada = false);
 
-            const nuevaNota = {
-                id: proximaNotaId,
+            const datosNota = {
                 fecha: document.getElementById('fecha-nota').value,
                 asesor: document.getElementById('asesor-nota').value,
                 categoria: document.getElementById('categoria-nota').value,
                 texto: document.getElementById('texto-nota').value.trim(),
-                estatus: "pendiente",
                 fijada: checkFijar
             };
 
-            listaNotas.push(nuevaNota);
-            localStorage.setItem("OficinaPradoNotasInternas", JSON.stringify(listaNotas));
+            if(!datosNota.asesor || !datosNota.categoria || !datosNota.texto) { alert("Campos incompletos."); return; }
 
-            filtrarNotas();
-            verificarAvisoFijado();
-            
-            document.getElementById('texto-nota').value = "";
-            document.getElementById('categoria-nota').value = "";
-            document.getElementById('fijar-nota-chk').checked = false;
-            alert("¡Reporte guardado con éxito en el libro de novedades!");
-        });
+            if(keyEdicion) {
+                listaNotas = listaNotas.map(n => n.firebaseKey === keyEdicion ? { ...n, ...datosNota } : n);
+            } else {
+                datosNota.id = listaNotas.length > 0 ? Math.max(...listaNotas.map(n => n.id)) + 1 : 1;
+                datosNota.estatus = "pendiente";
+                listaNotas.push(datosNota);
+            }
+            localStorage.setItem("backup_notes", JSON.stringify(listaNotas));
+            renderTablaNotas(listaNotas);
+            cancelarEdicionNota();
 
-        function toggleEstatusNota(id) {
-            listaNotas = listaNotas.map(nota => {
-                if (nota.id === id) {
-                    nota.estatus = (nota.estatus === "pendiente") ? "resuelto" : "pendiente";
+            try {
+                if (keyEdicion) {
+                    await fetch(FIREBASE_BASE_URL + `meta/${keyEdicion}.json`, { method: "PATCH", body: JSON.stringify(datosNota) });
+                } else {
+                    await fetch(FIREBASE_BASE_URL + "meta.json", { method: "POST", body: JSON.stringify(datosNota) });
                 }
-                return nota;
-            });
-            localStorage.setItem("OficinaPradoNotasInternas", JSON.stringify(listaNotas));
-            filtrarNotas();
+                cargarDatosDesdeFirebase();
+            } catch (error) { console.warn("Nota guardada de forma local."); }
+        }
+
+        function cargarNotaParaEditar(firebaseKey) {
+            const nota = listaNotas.find(n => n.firebaseKey === firebaseKey);
+            if (!nota) return;
+            document.getElementById('nota-id-edicion').value = firebaseKey;
+            document.getElementById('fecha-nota').value = nota.fecha;
+            document.getElementById('asesor-nota').value = nota.asesor;
+            document.getElementById('categoria-nota').value = nota.categoria;
+            document.getElementById('texto-nota').value = nota.texto;
+            document.getElementById('fijar-nota-chk').checked = nota.fijada;
+            document.getElementById('titulo-formulario-notes').innerText = `✏️ Modificando Nota #N-${nota.id}`;
+            const btn = document.getElementById('btn-submit-notes');
+            btn.innerText = "Actualizar Cambios en Bitácora"; btn.style.backgroundColor = "var(--warning-color)";
+            document.getElementById('btn-cancelar-nota-edicion').style.display = "inline-block";
+        }
+
+        function cancelarEdicionNota() {
+            document.getElementById('nota-id-edicion').value = ""; document.getElementById('notes-form').reset();
+            document.getElementById('fecha-nota').valueAsDate = new Date();
+            document.getElementById('titulo-formulario-notas').innerText = "Bitácora Interna y Reportes de la Oficina";
+            const btn = document.getElementById('btn-submit-notes');
+            btn.innerText = "Guardar Nota en la Bitácora"; btn.style.backgroundColor = "var(--notes-color)";
+            document.getElementById('btn-cancelar-nota-edicion').style.display = "none";
+        }
+
+        async function toggleEstatusNota(firebaseKey, estatusActual) {
+            const nuevoEstatus = (estatusActual === "pendiente") ? "resuelto" : "pendiente";
+            listaNotas = listaNotas.map(n => n.firebaseKey === firebaseKey ? { ...n, estatus: nuevoEstatus } : n);
+            localStorage.setItem("backup_notes", JSON.stringify(listaNotas));
+            renderTablaNotas(listaNotas);
+            try { await fetch(FIREBASE_BASE_URL + `meta/${firebaseKey}/estatus.json`, { method: "PUT", body: JSON.stringify(nuevoEstatus) }); } catch (e) {}
         }
 
         function verificarAvisoFijado() {
             const notaFijada = listaNotas.find(nota => nota.fijada === true);
             const barraAviso = document.getElementById('pizarra-avisos');
-            
             if (notaFijada) {
-                const fFormateada = notaFijada.fecha.split('-').reverse().join('/');
-                document.getElementById('aviso-meta').innerText = `Por: ${notaFijada.asesor} - ${fFormateada}`;
+                document.getElementById('aviso-meta').innerText = `Por: ${notaFijada.asesor} - ${notaFijada.fecha.split('-').reverse().join('/')}`;
                 document.getElementById('aviso-texto').innerText = `📌 ${notaFijada.texto}`;
                 barraAviso.style.display = 'block';
-            } else {
-                barraAviso.style.display = 'none';
-            }
+            } else { barraAviso.style.display = 'none'; }
         }
 
         function filtrarNotas() {
-            const filtroAsesor = document.getElementById('filter-nota-asesor').value;
-            const filtroCat = document.getElementById('filter-nota-cat').value;
-
+            const filterAsesor = document.getElementById('filter-nota-asesor').value;
+            const filterCat = document.getElementById('filter-nota-cat').value;
             let notasFiltradas = listaNotas;
-
-            if (filtroAsesor !== "") {
-                notasFiltradas = notasFiltradas.filter(n => n.asesor === filtroAsesor);
-            }
-
-            if (filtroCat !== "") {
-                notasFiltradas = notasFiltradas.filter(n => n.categoria === filtroCat);
-            }
-
+            if (filterAsesor !== "") notasFiltradas = notasFiltradas.filter(n => n.asesor === filterAsesor);
+            if (filterCat !== "") notasFiltradas = notasFiltradas.filter(n => n.categoria === filterCat);
             renderTablaNotas(notasFiltradas);
         }
 
         function renderTablaNotas(notasAMostrar) {
             const tbody = document.getElementById('notes-table-body');
-
-            if (notasAMostrar.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="no-data">No se encontraron reportes con los filtros seleccionados.</td></tr>`;
-                return;
-            }
-
+            if (notasAMostrar.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="no-data">Bitácora vacía.</td></tr>`; return; }
             tbody.innerHTML = "";
             [...notasAMostrar].reverse().forEach(nota => {
                 const fila = document.createElement('tr');
-                const fFormateada = nota.fecha.split('-').reverse().join('/');
-                
-                let catTxt = "General";
-                if(nota.categoria === "infraestructura") catTxt = "🔌 Infraestructura";
-                if(nota.categoria === "administracion") catTxt = "💵 Administración";
-                if(nota.categoria === "mensajeria") catTxt = "📦 Mensajería";
-                if(nota.categoria === "recordatorio") catTxt = "📌 Recordatorio";
-
-                const estatusPill = nota.estatus === "resuelto" 
-                    ? '<span class="status-pill ok">🟢 Resuelto</span>' 
-                    : '<span class="status-pill danger">🔴 Pendiente</span>';
-
-                if (nota.fijada) {
-                    fila.style.backgroundColor = "#fffbeb";
-                }
-
-                fila.innerHTML = `
-                    <td><code>#N-${nota.id}</code></td>
-                    <td>
-                        <button class="btn-status-toggle" onclick="toggleEstatusNota(${nota.id})" title="Haga clic para cambiar el estatus">
-                            ${estatusPill}
-                        </button>
-                    </td>
-                    <td><strong>${fFormateada}</strong></td>
-                    <td style="font-weight:600;">${nota.asesor}</td>
-                    <td><span class="badge ${nota.categoria || 'recordatorio'}">${catTxt}</span></td>
-                    <td style="line-height:1.4; color: #1e293b;">${nota.fijada ? '<b>[📌 FIJADO]</b> ' : ''}${nota.texto}</td>
-                    <td><button class="btn-delete" onclick="eliminarNota(${nota.id})">🗑️ Borrar</button></td>
-                `;       
+                if (nota.fijada) fila.style.backgroundColor = "#fffbeb";
+                fila.innerHTML = `<td><code>#N-${nota.id || '0'}</code></td><td><button class="btn-status-toggle" onclick="toggleEstatusNota('${nota.firebaseKey}', '${nota.estatus}')">${nota.estatus === "resuelto" ? '<span class="status-pill ok">🟢 Resuelto</span>' : '<span class="status-pill danger">🔴 Pendiente</span>'}</button></td><td><strong>${nota.fecha.split('-').reverse().join('/')}</strong></td><td>${nota.asesor}</td><td><span class="badge ${nota.categoria}">${nota.categoria}</span></td><td>${nota.texto}</td><td><button class="btn-export" style="background:var(--warning-color); padding: 6px 10px; font-size:12px;" onclick="cargarNotaParaEditar('${nota.firebaseKey}')">✏️ Editar</button> <button class="btn-delete" onclick="eliminarNota('${nota.firebaseKey}')">🗑️</button></td>`;
                 tbody.appendChild(fila);
             });
         }
 
-        function eliminarNota(id) {
-            if (confirm("¿Seguros de eliminar esta anotación de la bitácora interna?")) {
-                const eraFijada = listaNotas.find(n => n.id === id)?.fijada;
-                listaNotas = listaNotas.filter(nota => nota.id !== id);
-                localStorage.setItem("OficinaPradoNotasInternas", JSON.stringify(listaNotas));
-                
-                if (eraFijada) verificarAvisoFijado();
-                filtrarNotas();
+        async function eliminarNota(firebaseKey) {
+            if (confirm("¿Desean remover esta nota permanentemente de la bitácora?")) {
+                listaNotas = listaNotas.filter(n => n.firebaseKey !== firebaseKey);
+                localStorage.setItem("backup_notes", JSON.stringify(listaNotas));
+                renderTablaNotas(listaNotas);
+                try { await fetch(FIREBASE_BASE_URL + `meta/${firebaseKey}.json`, { method: "DELETE" }); cargarDatosDesdeFirebase(); } catch (e) {}
             }
         }
     </script>
